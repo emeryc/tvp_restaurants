@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Info about {{object.name}}{% endblock %}
+
+{% block script %}
+	
+	<script type="text/javascript" src="/assets/js/yui/yahoo-min.js"></script>
+	<script type="text/javascript" src="/assets/js/yui/dom-min.js"></script>
+	<script type="text/javascript" src="/assets/js/yui/event-min.js"></script>
+	<script type="text/javascript" src="/assets/js/yui/connection-min.js"></script>
+	<script type="text/javascript" src="/assets/js/yui/animation-min.js"></script>
+	<script type="text/javascript" src="/assets/js/objects.js"></script>
+	
+	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+
+	var map = null;
+	var geocoder = null;
+
+	function initialize() {
+	  if (GBrowserIsCompatible()) {
+	    map = new GMap2(document.getElementById("map_canvas"));
+	    geocoder = new GClientGeocoder();
+	        showAddress("{{object.address1}}, {{object.city}}, {{object.state}}")
+	  }
+	}
+
+	function showAddress(address) {
+	  if (geocoder) {
+	    geocoder.getLatLng(
+	      address,
+	      function(point) {
+	        if (!point) {
+	          alert(address + " not found");
+	        } else {
+				map.setCenter(point, 15);
+	          var marker = new GMarker(point);
+	          map.addOverlay(marker);
+	          marker.openInfoWindowHtml('<a href="http://maps.google.com/maps?f=q&hl=en&geocode=&q={{object.address1}} {{object.city}} {{object.state}}">{{object.name}}</a>');
+	        }
+	      }
+	    );
+	  }
+	}
+	</script>
+	
+{% endblock %}
+
+{% block bodyargs %}onload="initialize()" onunload="GUnload()"{% endblock %}
+
+{% block content %}
+	        <h1>{% if object.website %}<a href="{{object.website}}">{% endif %}{{object.name}}{% if object.website %}<a/>{% endif %}</h1>
+
+	        <address>{{object.address1}}</address>
+            {% if object.address2 %}<address>{{bussiness.address2}}</address>{% endif %}
+            <address>{{object.city}}, {{object.state}}  {{object.zip}}</address>
+            <address>{{object.phone}}</address>
+    
+
+	        <div id="map_canvas" style="width: 300px; height: 300px"></div>
+	
+{% endblock %}
