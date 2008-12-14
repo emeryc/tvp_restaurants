@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load comments %}
 
 {% block title %}Info about {{object.name}}{% endblock %}
 
@@ -60,4 +61,31 @@
 
 	        <div id="map_canvas" style="width: 300px; height: 300px"></div>
 	
+			
+			<div id="menu">
+				<h4>Menu:</h4>
+				{% for menu_item in object.menuitem_set.all %}
+					{% if menu_item.is_available %}
+						<div class="menu_item">
+							<p>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</p>
+							<p>{{menu_item.description}}</p>
+							<p><a href="{{menu_item.id}}/not_available/">Not Available?</a> <a href="{{menu_item.id}}/wrong/">Wrong Information?</a></p>
+						</div>
+					{% endif %}
+				{% endfor %}
+				<a href="add_item">Add a Menu Item</a>
+			</div>
+			
+			{% get_comment_list for object as comment_list %}
+			{% for comment in comment_list %}
+			<div class="comment">
+			    <p>{% if comment.url%}<a href="{{comment.url}}">{% endif %}{{comment.user_name}}{% if comment.url%}</a>{% endif %} said:</p>
+				<p>{{comment.comment}}</p>
+				<p>On {{comment.submit_date|date:"D d M Y g:i A"}}</p>
+			</div>
+			{% endfor %}
+	
+			<div class="comment">
+			{% render_comment_form for object %}
+			</div>
 {% endblock %}

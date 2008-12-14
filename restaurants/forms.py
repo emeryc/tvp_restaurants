@@ -1,4 +1,4 @@
-from models import Restaurant
+from models import Restaurant, MenuItem
 from django.forms import ModelForm
 from django import forms
 from django.contrib.localflavor.us.forms import *
@@ -6,4 +6,10 @@ from django.contrib.localflavor.us.forms import *
 class RestaurantForm(ModelForm):
     class Meta:
         model = Restaurant
-        exclude = ("slug",)
+        exclude = ("slug","user")
+
+
+class MenuItemForm(ModelForm):
+    class Meta:
+        model = MenuItem
+        exclude = ("restaurant","user","is_available", "bad_info")
