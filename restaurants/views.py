@@ -20,6 +20,7 @@ def add(request):
     return render_to_response("restaurants/add.html", {'form': form})
 
 
+@login_required
 def add_item(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
     if request.method == "POST":
