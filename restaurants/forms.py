@@ -6,10 +6,10 @@ from django.contrib.localflavor.us.forms import *
 class RestaurantForm(ModelForm):
     class Meta:
         model = Restaurant
-        exclude = ("slug","user")
+        exclude = ("slug","user",'last_mod')
 
 
 class MenuItemForm(ModelForm):
     class Meta:
         model = MenuItem
-        exclude = ("restaurant","user","is_available", "bad_info")
+        exclude = ("restaurant","user","is_available", "bad_info",'last_mod')
