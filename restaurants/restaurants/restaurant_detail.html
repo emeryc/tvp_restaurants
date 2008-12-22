@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load comments %}
+{% load tagging_tags %}
 
 {% block title %}Info about {{object.name}}{% endblock %}
 
@@ -9,7 +10,7 @@
 	<script type="text/javascript" src="/assets/js/yui/dom-min.js"></script>
 	<script type="text/javascript" src="/assets/js/yui/event-min.js"></script>
 	<script type="text/javascript" src="/assets/js/yui/connection-min.js"></script>
-	<script type="text/javascript" src="/assets/js/yui/animation-min.js"></script>
+	<script type="text/javascript" src="/assets/js/yui/json-min.js"></script>
 	<script type="text/javascript" src="/assets/js/objects.js"></script>
 	
 	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q" type="text/javascript"></script>
@@ -51,16 +52,28 @@
 {% block bodyargs %}onload="initialize()" onunload="GUnload()"{% endblock %}
 
 {% block content %}
-	        <h1>{% if object.website %}<a href="{{object.website}}">{% endif %}{{object.name}}{% if object.website %}<a/>{% endif %}</h1>
+	        <h1>{% if object.website %}<a href="{{object.website}}">{% endif %}{{object.name}}{% if object.website %}</a>{% endif %}</h1>
 
 	        <address>{{object.address1}}</address>
             {% if object.address2 %}<address>{{bussiness.address2}}</address>{% endif %}
             <address>{{object.city}}, {{object.state}}  {{object.zip}}</address>
             <address>{{object.phone}}</address>
     
-
+			
 	        <div id="map_canvas" style="width: 300px; height: 300px"></div>
 	
+			{% tags_for_object object as tags %}
+			<ul id="tag_list">
+				{% for tag in tags %}
+					<li><a href="{{tag.name}}">{{tag.name}}</a></li>
+				{% endfor %}
+			</ul>
+			{% if user.is_authenticated %}
+				<form action="#" method="post" accept-charset="utf-8">
+					<p><label for="tags">Tags</label><input type="text" name="tags" value="" id="tags" onKeyPress="return TAGS.on_enter(event)"> <a href="javascript:TAGS.add_tags()">add</a></p>
+
+				</form>
+			{% endif %}
 			
 			<div id="menu">
 				<h4>Menu:</h4>
