@@ -7,7 +7,7 @@ from tagging.views import tagged_object_list
 urlpatterns = patterns('',
    (r'^$', object_list, {"queryset":Restaurant.objects.all()}),
    (r'^add/$', add),
-   (r'^tags/(?P<tag>\S+)/$', tagged_object_list, {'queryset_or_model':Restaurant}),
+   (r'^tags/(?P<tag>.+)/$', tagged_object_list, {'queryset_or_model':Restaurant}),
    (r'^\S+/(?P<item_id>\d+)/not_available/$', not_available),
    (r'^\S+/(?P<item_id>\d+)/wrong/$', bad_info),
    (r'^(?P<slug>\S+)/add_item/$', add_item),
