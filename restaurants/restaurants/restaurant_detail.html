@@ -65,7 +65,7 @@
 			{% tags_for_object object as tags %}
 			<ul id="tag_list">
 				{% for tag in tags %}
-					<li><a href="{{tag.name}}">{{tag.name}}</a></li>
+					<li><a href="../tags/{{tag.name}}">{{tag.name}}</a></li>
 				{% endfor %}
 			</ul>
 			{% if user.is_authenticated %}
