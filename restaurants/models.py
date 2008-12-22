@@ -18,10 +18,6 @@ class Restaurant(models.Model):
     website = models.URLField(blank=True)
     user = models.ForeignKey(User)
     last_mod = models.DateTimeField(auto_now=True)
-    tags = TagField()
-    
-    def get_tags(self):
-        return Tag.objects.get_for_object(self)
     
     def updated(self):
         menu_item = max(Restaurant.objects.all()[0].menuitem_set.all(), key=lambda x: x.last_mod)
