@@ -19,6 +19,16 @@ class Restaurant(models.Model):
     user = models.ForeignKey(User)
     last_mod = models.DateTimeField(auto_now=True)
     
+    def get_rating(self):
+        scores = [x.score for x in self.rating_set.all()]
+        if len(scores) == 0:
+            return 0
+        return sum(scores)/(len(scores)*1.0)
+    
+    def get_int_rating(self):
+        return int(self.get_rating() + .5)
+    
+    
     def updated(self):
         menu_item = max(Restaurant.objects.all()[0].menuitem_set.all(), key=lambda x: x.last_mod)
         last_updated = max(menu_item, self, key=lambda x: x.last_mod)
@@ -44,3 +54,10 @@ class MenuItem(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    
+
+class Rating(models.Model):
+    user = models.ForeignKey(User)
+    restaurant = models.ForeignKey(Restaurant)
+    score = models.IntegerField()

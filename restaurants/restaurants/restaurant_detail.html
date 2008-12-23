@@ -53,6 +53,33 @@
 
 {% block content %}
 	        <h1>{% if object.website %}<a href="{{object.website}}">{% endif %}{{object.name}}{% if object.website %}</a>{% endif %}</h1>
+			
+			{% if user.is_authenticated %}
+				
+			<span id="rateStatus">Rate Me...</span>
+			<div id="rateMe" title="Rate Me...">
+			    <a onclick="STAR.rateIt(this)" id="_1" title="ehh..." onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"></a>
+			    <a onclick="STAR.rateIt(this)" id="_2" title="Not Bad" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"></a>
+			    <a onclick="STAR.rateIt(this)" id="_3" title="Pretty Good" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"></a>
+				<a onclick="STAR.rateIt(this)" id="_4" title="Good" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"></a>
+				<a onclick="STAR.rateIt(this)" id="_5" title="Great" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"></a>
+			</div>
+			{% else %}
+				<span id="rateStatus">Rate Me...</span>
+				<div id="rateMe" title="Rate Me...">
+				    <a id="_1" title="ehh..." ></a>
+				    <a id="_2" title="Not Bad" ></a>
+				    <a id="_3" title="Pretty Good" ></a>
+					<a id="_4" title="Good" ></a>
+					<a id="_5" title="Great" ></a>
+				</div>
+			{% endif %}
+			
+			
+			<script type="text/javascript">
+				STAR.preSet = document.getElementById("_{{ object.get_int_rating }}");
+				STAR.rating(STAR.preSet);
+			</script>
 
 	        <address>{{object.address1}}</address>
             {% if object.address2 %}<address>{{bussiness.address2}}</address>{% endif %}
@@ -69,10 +96,11 @@
 				{% endfor %}
 			</ul>
 			{% if user.is_authenticated %}
-				<form action="#" method="post" accept-charset="utf-8">
-					<p><label for="tags">Tags</label><input type="text" name="tags" value="" id="tags" onKeyPress="return TAGS.on_enter(event)"> <a href="javascript:TAGS.add_tags()">add</a></p>
-
+				<form action="javascript:TAGS.add_tags()" method="post" accept-charset="utf-8">
+					<p><label for="tags">Tags</label><input type="text" name="tags" value="" id="tags"> <a href="javascript:TAGS.add_tags()">add</a></p>
 				</form>
+			{% else %}
+				<a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
 			{% endif %}
 			
 			<div id="menu">

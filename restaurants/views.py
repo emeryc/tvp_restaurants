@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from forms import RestaurantForm, MenuItemForm
-from models import Restaurant, MenuItem
+from models import Restaurant, MenuItem, Rating
 from django.contrib.auth.decorators import login_required
 from django.template.defaultfilters import slugify
 from tagging.utils import parse_tag_input
@@ -69,5 +69,19 @@ def tag(request, slug):
     to_return["tags"] = tag_names
     serialized = simplejson.dumps(to_return)
     return HttpResponse(serialized, mimetype="application/json")
-    
-    
+
+@login_required
+def rate(request, slug):
+    restaurant = get_object_or_404(Restaurant, slug=slug)
+    score = request.GET["value"]
+    ratings = Rating.objects.filter(restaurant=restaurant).filter(user=request.user)
+    if len(ratings) > 0:
+        ratings[0].score = int(score)
+        ratings[0].save()
+    else:
+        newRating = Rating(restaurant=restaurant, user=request.user, score=int(score))
+        newRating.save()
+    newScore = restaurant.get_int_rating()
+    to_return = {"score":newScore}
+    serialized = simplejson.dumps(to_return)
+    return HttpResponse(serialized, mimetype="application/json")
