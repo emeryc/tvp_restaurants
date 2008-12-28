@@ -3,10 +3,13 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from forms import RestaurantForm, MenuItemForm
 from models import Restaurant, MenuItem, Rating
 from django.contrib.auth.decorators import login_required
+from django.contrib import comments
+from django.contrib.comments.forms import CommentForm
 from django.template.defaultfilters import slugify
 from tagging.utils import parse_tag_input
 from tagging.models import Tag
 import simplejson
+from django.template import RequestContext
 
 @login_required
 def add(request):
@@ -21,23 +24,6 @@ def add(request):
     else:
         form = RestaurantForm()
     return render_to_response("restaurants/add.html", {'form': form})
-
-
-@login_required
-def add_item(request, slug):
-    restaurant = get_object_or_404(Restaurant, slug=slug)
-    if request.method == "POST":
-        form = MenuItemForm(request.POST)        
-        if form.is_valid():
-            model = form.save(commit=False)
-            model.user = request.user
-            model.restaurant = restaurant
-            model.is_available = True
-            model.save()
-            return HttpResponseRedirect("../")
-    else:
-        form = MenuItemForm()
-    return render_to_response("restaurants/add_item.html", {'form': form})
 
 
 @login_required
@@ -56,6 +42,7 @@ def bad_info(request, item_id):
     return HttpResponseRedirect("../../")
 
 
+@login_required
 def tag(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
     tags = parse_tag_input(request.GET["tags"])
@@ -85,3 +72,34 @@ def rate(request, slug):
     to_return = {"score":newScore}
     serialized = simplejson.dumps(to_return)
     return HttpResponse(serialized, mimetype="application/json")
+
+
+def restaurant(request, slug):
+    restaurant = get_object_or_404(Restaurant, slug=slug)
+    mform = MenuItemForm()
+    cform = comments.get_form()(restaurant)
+    
+    if request.method == "POST":
+        if request.GET["type"] == "menu":
+            mform = MenuItemForm(request.POST, auto_id="menu_id_%s")
+            if mform.is_valid():
+                model = mform.save(commit=False)
+                model.user = request.user
+                model.restaurant = restaurant
+                model.is_available = True
+                model.save()
+                mform = MenuItemForm()
+        else :
+            cform = comments.get_form()(restaurant, data=request.POST.copy())
+            if cform.is_valid():
+                comment = cform.get_comment_object()
+                comment.ip_address = request.META.get("REMOTE_ADDR", None)
+                if request.user.is_authenticated():
+                    comment.user = request.user
+                comment.save()
+                cform = comments.get_form()(restaurant)
+    
+    mform.prefix = "menu"
+    del cform.fields['honeypot']
+    del cform.fields['url']  
+    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant}, context_instance=RequestContext(request))
