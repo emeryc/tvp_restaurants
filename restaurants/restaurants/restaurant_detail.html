@@ -17,14 +17,13 @@
         
 {% endblock %}
 
-{% block bodyargs %}onload='RESTAUARANT.init("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}");' onunload="GUnload()"{% endblock %}
+{% block bodyargs %}onload='RESTAUARANT.init();' onunload="GUnload()"{% endblock %}
 
 {% block content %}
     <h1>{{object.name}}</h1>
     
-    <div class="rightframe">
-        <div id="map_canvas" style="width: 300px; height: 300px"></div>
-    </div>
+	<p id="showmap"><a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a></p>
+    <div id="map_canvas" style="display:none; width: 95%; height: 300px"></div>
     
     <address>{{object.address1}}</address>
     {% if object.address2 %}
@@ -143,7 +142,7 @@
     </div>
 	<p id="showcomment" style="display:none;"><a href="#comment" name="comment" onclick="RESTAUARANT.showcommentform()">Add a Comment</a></p>
 	{% else %}
-        <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add a Comment</a>
+        <a href='/accounts/login/?next={{ object.get_absolute_url }}'>Add a Comment</a>
     {% endif %}
     
 
