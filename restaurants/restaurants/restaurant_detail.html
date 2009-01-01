@@ -84,9 +84,7 @@
         {% for menu_item in object.menuitem_set.all %}
             {% if menu_item.is_available %}
                 <div class="box">
-                    <p>
-                        <h2>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h2>
-                    </p>
+                    <h2>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h2>
                     <div class="description">
                         <p>
                             {{menu_item.description}}
@@ -121,7 +119,7 @@
     	{% for comment in comment_list %}
         	<div class="box">
             	<h2>{{comment.user_name}} said:</h2>
-            	<div class="descriptionion">
+            	<div class="description">
                 	<p>
                     	{{comment.comment}}
                 	</p>
