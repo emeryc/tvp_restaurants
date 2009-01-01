@@ -28,6 +28,8 @@ class Restaurant(models.Model):
     def get_int_rating(self):
         return int(self.get_rating() + .5)
     
+    def get_num_raters(self):
+        return len(self.rating_set.all())
     
     def updated(self):
         menu_item = max(Restaurant.objects.all()[0].menuitem_set.all(), key=lambda x: x.last_mod)
