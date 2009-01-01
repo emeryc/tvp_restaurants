@@ -2,7 +2,7 @@
 
 {% block content %}
 	{% for object in object_list %}
-		<p><a href="{{object.get_absolute_url}}">{{object.name}}</a></p>
+		<p><a href="{{object.get_absolute_url}}">{{object.name}}</a> has {{ object.get_int_rating }} stars and has been rated by {{ object.get_num_raters }} {{ object.get_num_raters|pluralize:"person,people" }}.</p>
 	{% endfor %}
 	
 	<a href="add/">Add a restaurant</a>
