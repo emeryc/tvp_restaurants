@@ -23,12 +23,7 @@
     <h1>{{object.name}}</h1>
     
 	<div id="tagbox" class="rightframe">
-    	{% tags_for_object object as tags %}
-    	<ul id="tag_list">
-    	    {% for tag in tags %}
-    	        <li><a href="../tags/{{tag.name}}">{{tag.name}}</a></li>
-    	    {% endfor %}
-    	</ul>
+    	{% for tag in tags %}{{tag|safe}} {% endfor %}
     	{% if user.is_authenticated %}
     	    <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
     	        <input type="text" name="tags" value="" id="tags">
@@ -77,6 +72,15 @@
         STAR.preSet = document.getElementById("_{{ object.get_int_rating }}");
         STAR.rating(STAR.preSet);
     </script>
+    
+    {% if user.is_authenticated %}
+        <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
+            <input type="text" name="tags" value="" id="tags">
+            <input type="submit" name="Add_Tag" value="Add Tag">
+        </form>
+    {% else %}
+        <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
+    {% endif %}
 	
 	<p id="showmap">
 		<a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a>

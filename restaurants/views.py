@@ -49,13 +49,22 @@ def tag(request, slug):
     for tag in tags:
         Tag.objects.add_tag(restaurant, tag + ",")
     to_return = {}
-    tags = Tag.objects.get_for_object(restaurant)
-    tag_names = []
-    for tag in tags:
-        tag_names.append('<a href="../tags/' + tag.name + '">' + tag.name +'</a>')
-    to_return["tags"] = tag_names
+    to_return["tags"] = getTags(restaurant)
     serialized = simplejson.dumps(to_return)
     return HttpResponse(serialized, mimetype="application/json")
+
+
+def getTags(restaurant):
+    tags = Tag.objects.get_for_object(restaurant)
+    cloud = Tag.objects.cloud_for_model(Restaurant)
+    tag_html = []
+    for tag in cloud:
+        if tag in tags:
+            tag_html.append('<a style="font-size:' + str(.5+tag.font_size/2.0) + 'em;" href="../tags/' + tag.name + '">' + tag.name +'</a>')
+
+    # for tag in tags:
+    #         tag_html.append('<a href="../tags/' + tag.name + '">' + tag.name +'</a>')
+    return tag_html
 
 @login_required
 def rate(request, slug):
@@ -102,4 +111,4 @@ def restaurant(request, slug):
     mform.prefix = "menu"
     del cform.fields['honeypot']
     del cform.fields['url']  
-    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant}, context_instance=RequestContext(request))
+    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))
