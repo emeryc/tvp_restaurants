@@ -54,13 +54,14 @@ def tag(request, slug):
     return HttpResponse(serialized, mimetype="application/json")
 
 
+sizeClass = ["", "tiny", "small", "medium", "big"]
 def getTags(restaurant):
     tags = Tag.objects.get_for_object(restaurant)
     cloud = Tag.objects.cloud_for_model(Restaurant)
     tag_html = []
     for tag in cloud:
         if tag in tags:
-            tag_html.append('<a style="font-size:' + str(.5+tag.font_size/2.0) + 'em;" href="../tags/' + tag.name + '">' + tag.name +'</a>')
+            tag_html.append('<a class="' + sizeClass[tag.font_size] + '" href="../tags/' + tag.name + '">' + tag.name +'</a>')
 
     # for tag in tags:
     #         tag_html.append('<a href="../tags/' + tag.name + '">' + tag.name +'</a>')
