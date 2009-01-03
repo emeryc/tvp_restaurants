@@ -58,12 +58,9 @@
         STAR.rating(STAR.preSet);
     </script>
     
-    {% tags_for_object object as tags %}
-    <ul id="tag_list">
-        {% for tag in tags %}
-            <li><a href="../tags/{{tag.name}}">{{tag.name}}</a></li>
-        {% endfor %}
-    </ul>
+	<div tags>
+        {% for tag in tags %}{{tag|safe}} {% endfor %}
+	</div>
     {% if user.is_authenticated %}
         <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
             <input type="text" name="tags" value="" id="tags">
