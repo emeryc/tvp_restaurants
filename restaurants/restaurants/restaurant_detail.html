@@ -22,56 +22,61 @@
 {% block content %}
     <h1>{{object.name}}</h1>
     
-    <address>{{object.address1}}</address>
-    {% if object.address2 %}
-        <address>{{bussiness.address2}}</address>
-    {% endif %}
-    <address>{{object.city}}, {{object.state}}  {{object.zip}}</address>
-    <address>{{object.phone}}</address>
-    {% if object.website %}
-        <address><a href="{{object.website}}">{{object.website}}</a></address>
-    {% endif %}
+	<div id="tagbox" class="rightframe">
+    	{% tags_for_object object as tags %}
+    	<ul id="tag_list">
+    	    {% for tag in tags %}
+    	        <li><a href="../tags/{{tag.name}}">{{tag.name}}</a></li>
+    	    {% endfor %}
+    	</ul>
+    	{% if user.is_authenticated %}
+    	    <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
+    	        <input type="text" name="tags" value="" id="tags">
+    	        <input type="submit" name="Add_Tag" value="Add Tag">
+    	    </form>
+    	{% else %}
+    	    <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
+    	{% endif %}
+	</div>
     
-    {% if user.is_authenticated %}
-        
-    <span id="rateStatus">Rate Me!</span>
-    <div id="rateMe" title="Rate Me!">
-    	<a onclick="STAR.rateIt(this)" id="_1" title="Terrible" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-	    <a onclick="STAR.rateIt(this)" id="_2" title="Average" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-	    <a onclick="STAR.rateIt(this)" id="_3" title="Good" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-	    <a onclick="STAR.rateIt(this)" id="_4" title="Great" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-	    <a onclick="STAR.rateIt(this)" id="_5" title="The Best" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-    </div>
-    {% else %}
-		<span id="rateStatus">Unrated!</span>
-        <div id="rateMe" title="Unrated!">
-            <a id="_1" title="Terrible" ></a>
-            <a id="_2" title="Average" ></a>
-            <a id="_3" title="Good" ></a>
-            <a id="_4" title="Great" ></a>
-            <a id="_5" title="The Best" ></a>
-        </div>
-    {% endif %}
+	<div id="address">
+    	<address>{{object.address1}}</address>
+    	{% if object.address2 %}
+    	    <address>{{bussiness.address2}}</address>
+    	{% endif %}
+    	<address>{{object.city}}, {{object.state}}  {{object.zip}}</address>
+    	<address>{{object.phone}}</address>
+    	{% if object.website %}
+    	    <address><a href="{{object.website}}">{{object.website}}</a></address>
+    	{% endif %}
+	</div>
+    
+	<div id="ratings">
+    	{% if user.is_authenticated %}
+    	<span id="rateStatus">Rate Me!</span>
+    	<div id="rateMe" title="Rate Me!">
+    		<a onclick="STAR.rateIt(this)" id="_1" title="Terrible" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
+		    <a onclick="STAR.rateIt(this)" id="_2" title="Average" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
+		    <a onclick="STAR.rateIt(this)" id="_3" title="Good" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
+		    <a onclick="STAR.rateIt(this)" id="_4" title="Great" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
+		    <a onclick="STAR.rateIt(this)" id="_5" title="The Best" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
+    	</div>
+    	{% else %}
+			<span id="rateStatus">Unrated!</span>
+    	    <div id="rateMe" title="Unrated!">
+    	        <a id="_1" title="Terrible" ></a>
+    	        <a id="_2" title="Average" ></a>
+    	        <a id="_3" title="Good" ></a>
+    	        <a id="_4" title="Great" ></a>
+    	        <a id="_5" title="The Best" ></a>
+    	    </div>
+    	{% endif %}
+	</div>
     
     <script type="text/javascript">
         STAR.preSet = document.getElementById("_{{ object.get_int_rating }}");
         STAR.rating(STAR.preSet);
     </script>
-    
-    {% tags_for_object object as tags %}
-    <ul id="tag_list">
-        {% for tag in tags %}
-            <li><a href="../tags/{{tag.name}}">{{tag.name}}</a></li>
-        {% endfor %}
-    </ul>
-    {% if user.is_authenticated %}
-        <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
-            <input type="text" name="tags" value="" id="tags">
-            <input type="submit" name="Add_Tag" value="Add Tag">
-        </form>
-    {% else %}
-        <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
-    {% endif %}
 	
 	<p id="showmap">
 		<a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a>
