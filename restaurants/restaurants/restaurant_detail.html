@@ -22,9 +22,6 @@
 {% block content %}
     <h1>{{object.name}}</h1>
     
-	<p id="showmap"><a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a></p>
-    <div id="map_canvas" style="display:none; width: 95%; height: 300px"></div>
-    
     <address>{{object.address1}}</address>
     {% if object.address2 %}
         <address>{{bussiness.address2}}</address>
@@ -75,9 +72,17 @@
     {% else %}
         <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
     {% endif %}
-    
-    <div class="clear"> </div>
-    
+	
+	<p id="showmap">
+		<a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a>
+	</p>
+    <div id="map">
+        <h1>Map to {{object.name}}</h1>
+		<div class="frame">
+    		<div id="map_canvas"></div>
+    	</div>
+	</div>
+
     <div id="menu">
         <h1>{{object.name}} Menu</h1>
         {% for menu_item in object.menuitem_set.all %}
