@@ -46,6 +46,7 @@ class Restaurant(models.Model):
 
 class MenuItem(models.Model):
     name = models.CharField(max_length=60)
+    category = models.CharField(max_length=60)
     description = models.TextField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
     user = models.ForeignKey(User)

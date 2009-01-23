@@ -7,6 +7,7 @@ class RestaurantForm(ModelForm):
     class Meta:
         model = Restaurant
         exclude = ("slug","user",'last_mod')
+        # prefix = "menu"
 
 
 class MenuItemForm(ModelForm):

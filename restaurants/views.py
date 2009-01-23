@@ -62,9 +62,6 @@ def getTags(restaurant):
     for tag in cloud:
         if tag in tags:
             tag_html.append('<a class="' + sizeClass[tag.font_size] + '" href="../tags/' + tag.name + '">' + tag.name +'</a>')
-
-    # for tag in tags:
-    #         tag_html.append('<a href="../tags/' + tag.name + '">' + tag.name +'</a>')
     return tag_html
 
 @login_required
@@ -86,19 +83,28 @@ def rate(request, slug):
 
 def restaurant(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
-    mform = MenuItemForm()
+    mform = MenuItemForm(prefix="menu")
     cform = comments.get_form()(restaurant)
-    
+    if request.GET.get("query", False):
+        # ajax
+        categories = set()
+        for item in restaurant.menuitem_set.all():
+            categories.add(item.category)
+        categories = list(categories)
+        print categories
+        categories.sort()
+        serialized = simplejson.dumps({"Results":categories})
+        return HttpResponse(serialized, mimetype="application/json")
     if request.method == "POST":
         if request.GET["type"] == "menu":
-            mform = MenuItemForm(request.POST, auto_id="menu_id_%s")
+            mform = MenuItemForm(request.POST, prefix="menu")
             if mform.is_valid():
                 model = mform.save(commit=False)
                 model.user = request.user
                 model.restaurant = restaurant
                 model.is_available = True
                 model.save()
-                mform = MenuItemForm()
+                mform = MenuItemForm(prefix="menu")
         else :
             cform = comments.get_form()(restaurant, data=request.POST.copy())
             if cform.is_valid():
@@ -108,8 +114,6 @@ def restaurant(request, slug):
                     comment.user = request.user
                 comment.save()
                 cform = comments.get_form()(restaurant)
-    
-    mform.prefix = "menu"
     del cform.fields['honeypot']
     del cform.fields['url']  
     return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))

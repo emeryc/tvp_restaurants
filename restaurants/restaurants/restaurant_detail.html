@@ -5,12 +5,19 @@
 {% block title %}{{object.name}} Restaurant in Portland, Oregon{% endblock %}
 
 {% block script %}
-    
+    <link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.6.0/build/autocomplete/assets/skins/sam/autocomplete.css">
+
     <script type="text/javascript" src="/assets/js/yui/yahoo-min.js"></script>
-    <script type="text/javascript" src="/assets/js/yui/dom-min.js"></script>
-    <script type="text/javascript" src="/assets/js/yui/event-min.js"></script>
-    <script type="text/javascript" src="/assets/js/yui/connection-min.js"></script>
     <script type="text/javascript" src="/assets/js/yui/json-min.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/event/event-min.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/get/get-min.js"></script> 
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/datasource/datasource-min.js"></script>
+	
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+	
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/connection/connection-min.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/autocomplete/autocomplete-min.js"></script>
+	
     <script type="text/javascript" src="/assets/js/objects.js"></script>
     
     <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q" type="text/javascript"></script>
@@ -58,9 +65,7 @@
         STAR.rating(STAR.preSet);
     </script>
     
-	<div tags>
-        {% for tag in tags %}{{tag|safe}} {% endfor %}
-	</div>
+	<div id="taglist">{% for tag in tags %}{{tag|safe}} {% endfor %}</div>
     {% if user.is_authenticated %}
         <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
             <input type="text" name="tags" value="" id="tags">
@@ -82,22 +87,28 @@
 
     <div id="menu">
         <h1>{{object.name}} Menu</h1>
-        {% for menu_item in object.menuitem_set.all %}
-            {% if menu_item.is_available %}
-                <div class="box">
-                    <h2>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h2>
-                    <div class="description">
-                        <p>
-                            {{menu_item.description}}
-                        </p>
-                        <p class="bottom">
-                            <a href="{{menu_item.id}}/not_available/">Not Available?</a> | 
-                            <a href="{{menu_item.id}}/wrong/">Wrong Information?</a>
-                        </p>
-                    </div>
-                </div>
-            {% endif %}
+		{% with object.menuitem_set.all as menu %}
+		{% regroup menu by category as menu_list %}
+        {% for menu_category in menu_list %}
+			<h2>{{menu_category.grouper}}</h2>
+			{% for menu_item in menu_category.list %}
+				{% if menu_item.is_available %}
+	                <div class="box">
+	                    <h2>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h2>
+	                    <div class="description">
+	                        <p>
+	                            {{menu_item.description}}
+	                        </p>
+	                        <p class="bottom">
+	                            <a href="{{menu_item.id}}/not_available/">Not Available?</a> | 
+	                            <a href="{{menu_item.id}}/wrong/">Wrong Information?</a>
+	                        </p>
+	                    </div>
+	                </div>
+	            {% endif %}
+			{% endfor %}
         {% endfor %}
+		{% endwith %}
     </div>
     
 
@@ -108,6 +119,7 @@
             	{{menu_form.as_ul}}
             	<input type="submit" value="Add Item" />
         	</form>
+			<div id="cagegory_auto"></div>
     	</div>
 		<p id="showmenu" style="display:none;"><a href="#menu" name="menu" onclick="RESTAUARANT.showmenuform()">Add a Menu Item</a></p>
     {% else %}
