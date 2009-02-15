@@ -38,6 +38,15 @@
     {% if object.website %}
         <address><a href="{{object.website}}">{{object.website}}</a></address>
     {% endif %}
+
+    {% for days in object.hours %}
+		<h2>{{days.day}}</h2>
+		<ul>
+			{% for time in days.hours %}
+				<li>{{time.open_time|time:"P"}} - {{time.close_time|time:"P"}}</li>
+			{% endfor %}
+		</ul>
+	{% endfor %}
     
     {% if user.is_authenticated %}
         
