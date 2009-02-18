@@ -1,7 +1,21 @@
 {% extends "base.html" %}
 
+{% block bodyargs %}onload='RESTAUARANT_ADD.init();'{% endblock %}
+
 {% block content %}
-<form method="post" action=".">
+<form id="restaurants" method="post" action=".">
+	<ul>
 	{{form.as_ul}}
+	</ul>
+	<fieldset id="hours">
+		<legend>Hours</legend>
+	{% for hour in hfs.forms %}
+		<ul>
+		{{hour.as_ul}}
+		</ul>
+	{% endfor %}
+	</fieldset>
+	{{hfs.management_form.as_ul}}
+	<p><a href="?eh={{extra_hours}}" id="add_hours">Add Hours</a></p>
 <input type="submit" value="Add Restaurant" />
 {% endblock %}

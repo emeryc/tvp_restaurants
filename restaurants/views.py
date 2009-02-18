@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from forms import RestaurantForm, MenuItemForm
+from forms import RestaurantForm, MenuItemForm, HourForm
 from models import Restaurant, MenuItem, Rating
 from django.contrib.auth.decorators import login_required
 from django.contrib import comments
@@ -10,20 +10,34 @@ from tagging.utils import parse_tag_input
 from tagging.models import Tag
 import simplejson
 from django.template import RequestContext
+from django.forms.formsets import formset_factory
 
 @login_required
 def add(request):
+    try:
+        extra_hours = int(request.GET["eh"])
+    except:
+        extra_hours = 2
+    HourFormSet = formset_factory(HourForm, extra=extra_hours)
+    print HourFormSet().management_form.as_ul()
     if request.method == "POST":
-        form = RestaurantForm(request.POST)        
-        if form.is_valid():
+        form = RestaurantForm(request.POST)
+        hfs = HourFormSet(request.POST)       
+        if form.is_valid() and hfs.is_valid():
             model = form.save(commit=False)
             model.slug = slugify(model.name)
             model.user = request.user
             model.save()
+            for hour in hfs.forms:
+                hmodel = hour.save(commit=False)
+                hmodel.restaurant = model
+                hmodel.save()                
             return HttpResponseRedirect(model.get_absolute_url())
     else:
         form = RestaurantForm()
-    return render_to_response("restaurants/add.html", {'form': form})
+        hfs = HourFormSet()
+    
+    return render_to_response("restaurants/add.html", {'form': form, 'hfs':hfs, 'extra_hours':extra_hours+1}, context_instance=RequestContext(request))
 
 
 @login_required
