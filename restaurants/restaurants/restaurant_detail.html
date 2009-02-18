@@ -5,23 +5,7 @@
 {% block title %}{{object.name}} Restaurant in Portland, Oregon{% endblock %}
 
 {% block script %}
-    <link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.6.0/build/autocomplete/assets/skins/sam/autocomplete.css">
-
-    <script type="text/javascript" src="/assets/js/yui/yahoo-min.js"></script>
-    <script type="text/javascript" src="/assets/js/yui/json-min.js"></script>
-	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/event/event-min.js"></script>
-	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/get/get-min.js"></script> 
-	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/datasource/datasource-min.js"></script>
-	
-	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-	
-	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/connection/connection-min.js"></script>
-	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/autocomplete/autocomplete-min.js"></script>
-	
-    <script type="text/javascript" src="/assets/js/objects.js"></script>
-    
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q" type="text/javascript"></script>
-        
+	<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q"></script>        
 {% endblock %}
 
 {% block bodyargs %}onload='RESTAUARANT.init();' onunload="GUnload()"{% endblock %}
