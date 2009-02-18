@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 
+{% block title %}Add a Restaurant{% endblock %}
+
 {% block bodyargs %}onload='RESTAUARANT_ADD.init();'{% endblock %}
 
 {% block content %}
 <form id="restaurants" method="post" action=".">
+	<fieldset>
+		<legend>Address</legend>
 	<ul>
 	{{form.as_ul}}
 	</ul>
+	</fieldset>
 	<fieldset id="hours">
 		<legend>Hours</legend>
 	{% for hour in hfs.forms %}
