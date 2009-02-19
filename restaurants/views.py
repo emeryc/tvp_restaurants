@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from forms import RestaurantForm, MenuItemForm
+from forms import RestaurantForm, MenuItemForm, HourForm
 from models import Restaurant, MenuItem, Rating
 from django.contrib.auth.decorators import login_required
 from django.contrib import comments
@@ -10,20 +10,34 @@ from tagging.utils import parse_tag_input
 from tagging.models import Tag
 import simplejson
 from django.template import RequestContext
+from django.forms.formsets import formset_factory
 
 @login_required
 def add(request):
+    try:
+        extra_hours = int(request.GET["eh"])
+    except:
+        extra_hours = 2
+    HourFormSet = formset_factory(HourForm, extra=extra_hours)
+    print HourFormSet().management_form.as_ul()
     if request.method == "POST":
-        form = RestaurantForm(request.POST)        
-        if form.is_valid():
+        form = RestaurantForm(request.POST)
+        hfs = HourFormSet(request.POST)       
+        if form.is_valid() and hfs.is_valid():
             model = form.save(commit=False)
             model.slug = slugify(model.name)
             model.user = request.user
             model.save()
+            for hour in hfs.forms:
+                hmodel = hour.save(commit=False)
+                hmodel.restaurant = model
+                hmodel.save()                
             return HttpResponseRedirect(model.get_absolute_url())
     else:
         form = RestaurantForm()
-    return render_to_response("restaurants/add.html", {'form': form})
+        hfs = HourFormSet()
+    
+    return render_to_response("restaurants/add.html", {'form': form, 'hfs':hfs, 'extra_hours':extra_hours+1}, context_instance=RequestContext(request))
 
 
 @login_required
@@ -86,19 +100,28 @@ def rate(request, slug):
 
 def restaurant(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
-    mform = MenuItemForm()
+    mform = MenuItemForm(prefix="menu")
     cform = comments.get_form()(restaurant)
-    
+    if request.GET.get("query", False):
+        # ajax
+        categories = set()
+        for item in restaurant.menuitem_set.all():
+            categories.add(item.category)
+        categories = list(categories)
+        print categories
+        categories.sort()
+        serialized = simplejson.dumps({"Results":categories})
+        return HttpResponse(serialized, mimetype="application/json")
     if request.method == "POST":
         if request.GET["type"] == "menu":
-            mform = MenuItemForm(request.POST, auto_id="menu_id_%s")
+            mform = MenuItemForm(request.POST, prefix="menu")
             if mform.is_valid():
                 model = mform.save(commit=False)
                 model.user = request.user
                 model.restaurant = restaurant
                 model.is_available = True
                 model.save()
-                mform = MenuItemForm()
+                mform = MenuItemForm(prefix="menu")
         else :
             cform = comments.get_form()(restaurant, data=request.POST.copy())
             if cform.is_valid():
@@ -108,8 +131,6 @@ def restaurant(request, slug):
                     comment.user = request.user
                 comment.save()
                 cform = comments.get_form()(restaurant)
-    
-    mform.prefix = "menu"
     del cform.fields['honeypot']
     del cform.fields['url']  
     return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))

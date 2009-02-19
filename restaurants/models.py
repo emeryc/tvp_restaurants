@@ -43,9 +43,54 @@ class Restaurant(models.Model):
     def __unicode__(self):
         return self.name
 
+    def hours(self):
+        all_hours = self.hours_set.all()
+        days = {}
+        for hour in all_hours:
+            hour_list = days.get(hour.day, Day(hour.day))
+            hour_list.add_hour(hour)
+            days[hour.day] = hour_list
+        ordered_days = []
+        for day_name in DAY_CHOICES:
+            for day in days.values():
+                if day.day == day_name[1]:
+                    ordered_days.append(day)
+        return ordered_days
+    
+
+DAY_CHOICES = (
+    ("mon", "Monday"),
+    ("tue", "Tuesday"),
+    ("wed", "Wednesday"),
+    ("thu", "Thursday"),
+    ("fri", "Friday"),
+    ("sat", "Saturday"),
+    ("sun", "Sunday"),
+)
+
+
+class Day(object):
+    def __init__(self, day):
+        self.day = dict(DAY_CHOICES)[day]
+        self.hours = []
+    
+    def add_hour(self, hour):
+        self.hours.append(hour)
+        self.hours.sort()
+
+
+class Hours(models.Model):
+    restaurant = models.ForeignKey(Restaurant)
+    day = models.CharField(max_length=3, choices=DAY_CHOICES)
+    open_time = models.TimeField()
+    close_time = models.TimeField()
+    
+    def __unicode__(self):
+        return self.day + " " + str(self.open_time) + " - " + str(self.close_time)
 
 class MenuItem(models.Model):
     name = models.CharField(max_length=60)
+    category = models.CharField(max_length=60)
     description = models.TextField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
     user = models.ForeignKey(User)
