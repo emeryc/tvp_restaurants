@@ -20,19 +20,21 @@
 {% block bodyargs %}onload='RESTAUARANT.init();' onunload="GUnload()"{% endblock %}
 
 {% block content %}
-    <h1>{{object.name}}</h1>
-    
 	<div id="tagbox" class="rightframe">
-    	{% for tag in tags %}{{tag|safe}} {% endfor %}
-    	{% if user.is_authenticated %}
+    	<div id="taglist">
+			{% for tag in tags %}{{tag|safe}} {% endfor %}
+		</div>
+    		{% if user.is_authenticated %}
     	    <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
     	        <input type="text" name="tags" value="" id="tags">
-    	        <input type="submit" name="Add_Tag" value="Add Tag">
+    	        <input type="submit" name="Add_Tag" value="Add Tag" class="button">
     	    </form>
     	{% else %}
-    	    <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
+    	    <p><a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a></p>
     	{% endif %}
 	</div>
+	
+    <h1>{{object.name}}</h1>
     
 	<div id="address">
     	<address>{{object.address1}}</address>
@@ -72,15 +74,8 @@
         STAR.preSet = document.getElementById("_{{ object.get_int_rating }}");
         STAR.rating(STAR.preSet);
     </script>
-    
-    {% if user.is_authenticated %}
-        <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
-            <input type="text" name="tags" value="" id="tags">
-            <input type="submit" name="Add_Tag" value="Add Tag">
-        </form>
-    {% else %}
-        <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a>
-    {% endif %}
+
+	<div class="clear"> </div>
 	
 	<p id="showmap">
 		<a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a>
@@ -118,12 +113,12 @@
         	<h2>Add A Menu Item</h2>
         	<form id="menu_item" action="./?type=menu" method="POST">
             	{{menu_form.as_ul}}
-            	<input type="submit" value="Add Item" />
+            	<input type="submit" value="Add Item"  class="button"/>
         	</form>
     	</div>
 		<p id="showmenu" style="display:none;"><a href="#menu" name="menu" onclick="RESTAUARANT.showmenuform()">Add a Menu Item</a></p>
     {% else %}
-        <a href="/accounts/login/?next={{ object.get_absolute_url }}">Add a Menu Item</a>
+        <p><a href="/accounts/login/?next={{ object.get_absolute_url }}">Add a Menu Item</a></p>
     {% endif %}
     
     <div id="comments">
@@ -149,12 +144,12 @@
         <h2>Add A Comment</h2>
         <form id="comment" action="./?type=comment" method="POST">
             {{comment_form.as_ul}}
-            <input type="submit" name="submit" class="submit-post" value="Preview">
+            <label> </label> <input type="submit" name="submit" value="Preview" class="button">
         </form>
     </div>
 	<p id="showcomment" style="display:none;"><a href="#comment" name="comment" onclick="RESTAUARANT.showcommentform()">Add a Comment</a></p>
 	{% else %}
-        <a href='/accounts/login/?next={{ object.get_absolute_url }}'>Add a Comment</a>
+        <p><a href='/accounts/login/?next={{ object.get_absolute_url }}'>Add a Comment</a></p>
     {% endif %}
     
 

@@ -59,12 +59,12 @@ def getTags(restaurant):
     tags = Tag.objects.get_for_object(restaurant)
     cloud = Tag.objects.cloud_for_model(Restaurant)
     tag_html = []
-    for tag in cloud:
+    for tag in cloud: 
         if tag in tags:
-            tag_html.append('<a class="' + sizeClass[tag.font_size] + '" href="../tags/' + tag.name + '">' + tag.name +'</a>')
-
-    # for tag in tags:
-    #         tag_html.append('<a href="../tags/' + tag.name + '">' + tag.name +'</a>')
+            try:
+                tag_html.append('<a class="' + sizeClass[tag.font_size] + '" href="../tags/' + tag.name + '">' + tag.name +'</a>')
+            except Exception:
+                tag_html.append('<a class="' + sizeClass[1] + '" href="../tags/' + tag.name + '">' + tag.name +'</a>')
     return tag_html
 
 @login_required
