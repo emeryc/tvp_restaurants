@@ -30,6 +30,8 @@ def add(request):
             model.save()
             for hour in hfs.forms:
                 hmodel = hour.save(commit=False)
+                if not hmodel.open_time:
+                    continue
                 hmodel.restaurant = model
                 hmodel.save()                
             return HttpResponseRedirect(model.get_absolute_url())

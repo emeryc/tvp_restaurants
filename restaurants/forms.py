@@ -2,6 +2,7 @@ from models import Restaurant, MenuItem, Hours
 from django.forms import ModelForm
 from django import forms
 from django.contrib.localflavor.us.forms import *
+from tools.betterDateTime import ParseTimeField
 
 class RestaurantForm(ModelForm):
     class Meta:
@@ -11,6 +12,9 @@ class RestaurantForm(ModelForm):
 
 
 class HourForm(ModelForm):
+    open_time = ParseTimeField()
+    close_time = ParseTimeField()
+    
     class Meta:
         model = Hours
         exclude = ("restaurant", )
