@@ -101,10 +101,10 @@
 	                        <p>
 	                            {{menu_item.description}}
 	                        </p>
-	                        <p class="bottom">
-	                            <a href="{{menu_item.id}}/not_available/">Not Available?</a> | 
-	                            <a href="{{menu_item.id}}/wrong/">Wrong Information?</a>
-	                        </p>
+	                        {# <p class="bottom"> #}
+	                        {#     <a href="{{menu_item.id}}/not_available/">Not Available?</a> |  #}
+	                        {#     <a href="{{menu_item.id}}/wrong/">Wrong Information?</a> #}
+	                        {# </p> #}
 	                    </div>
 	                </div>
 	            {% endif %}
@@ -151,7 +151,7 @@
         <h2>Add A Comment</h2>
         <form id="comment" action="./?type=comment" method="POST">
             {{comment_form.as_ul}}
-            <label> </label> <input type="submit" name="submit" value="Preview" class="button">
+            <label> </label> <input type="submit" name="submit" value="Post" class="button">
         </form>
     </div>
 	<p id="showcomment" style="display:none;"><a href="#comment" name="comment" onclick="RESTAUARANT.showcommentform()">Add a Comment</a></p>
