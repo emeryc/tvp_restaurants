@@ -40,7 +40,7 @@
 	</div>
 
     {% for days in object.hours %}
-		<h2>{{days.day}}</h2>
+		<h2>{{days.startDay}}{% if days.endDay %} - {{days.endDay}}{% endif %}</h2>
 		<ul>
 			{% for time in days.hours %}
 				<li>{{time.open_time|time:"P"}} - {{time.close_time|time:"P"}}</li>

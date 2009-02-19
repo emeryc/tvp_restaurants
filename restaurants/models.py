@@ -45,6 +45,8 @@ class Restaurant(models.Model):
 
     def hours(self):
         all_hours = self.hours_set.all()
+        if len(all_hours) == 0:
+            return []
         days = {}
         for hour in all_hours:
             hour_list = days.get(hour.day, Day(hour.day))
@@ -55,7 +57,17 @@ class Restaurant(models.Model):
             for day in days.values():
                 if day.day == day_name[1]:
                     ordered_days.append(day)
-        return ordered_days
+        mDays = []
+        lastDay = MultiDay(ordered_days.pop(0))
+        mDays.append(lastDay)
+        for day in ordered_days:
+            print lastDay.hours == day.hours, lastDay.hours, day.hours
+            if lastDay.hours == day.hours:
+                lastDay.add_day(day)
+            else:
+                lastDay = MultiDay(day)
+                mDays.append(lastDay)
+        return mDays
     
 
 DAY_CHOICES = (
@@ -68,6 +80,14 @@ DAY_CHOICES = (
     ("sun", "Sunday"),
 )
 
+class MultiDay(object):
+    def __init__(self, day):
+        self.startDay = day.day
+        self.hours = day.hours
+        
+    def add_day(self, day):
+        self.endDay = day.day
+        
 
 class Day(object):
     def __init__(self, day):
@@ -84,6 +104,9 @@ class Hours(models.Model):
     day = models.CharField(max_length=3, choices=DAY_CHOICES)
     open_time = models.TimeField()
     close_time = models.TimeField()
+    
+    def __eq__(self, other):
+        return self.open_time == other.open_time and self.close_time == other.close_time
     
     def __unicode__(self):
         return self.day + " " + str(self.open_time) + " - " + str(self.close_time)
