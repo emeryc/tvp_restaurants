@@ -12,12 +12,15 @@ class Restaurant(models.Model):
     address1 = models.CharField("Address Line 1", max_length=50)
     address2 = models.CharField("Address Line 2", max_length=50, blank=True)
     city = models.CharField(max_length=60)
-    state = USStateField(default="OR")
+    # state = USStateField(default="OR")
     zipcode = models.CharField(blank=True, max_length=10)
     phone = PhoneNumberField(blank=True)
     website = models.URLField(blank=True)
     user = models.ForeignKey(User)
     last_mod = models.DateTimeField(auto_now=True)
+    
+    def text(self):
+        return self.address1 + " " + self.address2 + " " + self.city
     
     def get_rating(self):
         scores = [x.score for x in self.rating_set.all()]
@@ -121,6 +124,9 @@ class MenuItem(models.Model):
     restaurant = models.ForeignKey(Restaurant)
     bad_info = models.BooleanField(default=False)    
     last_mod = models.DateTimeField(default=datetime.now(), auto_now=True)
+    
+    def text(self):
+        return self.name + " " + self.category + " " + self.description
     
     def __unicode__(self):
         return self.name
