@@ -96,7 +96,7 @@
 			{% for menu_item in menu_category.list %}
 				{% if menu_item.is_available %}
 	                <div class="box">
-	                    <h2>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h2>
+	                    <h3>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h3>
 	                    <div class="description">
 	                        <p>
 	                            {{menu_item.description}}
@@ -133,7 +133,7 @@
     	{% get_comment_list for object as comment_list %}
     	{% for comment in comment_list %}
         	<div class="box">
-            	<h2>{{comment.user_name}} said:</h2>
+            	<h3>{{comment.user_name}} said:</h3>
             	<div class="description">
                 	<p>
                     	{{comment.comment}}
