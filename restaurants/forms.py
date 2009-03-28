@@ -7,7 +7,7 @@ from tools.betterDateTime import ParseTimeField
 class RestaurantForm(ModelForm):
     class Meta:
         model = Restaurant
-        exclude = ("slug","user",'last_mod')
+        exclude = ("slug","user",'last_mod', 'lat', 'long')
         # prefix = "menu"
 
 

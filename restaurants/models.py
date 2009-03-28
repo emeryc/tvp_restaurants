@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.localflavor.us.models import *
 from django.contrib.auth.models import User
+from django.utils import simplejson
 from datetime import datetime
 import callbacks
 from tagging.fields import TagField
+import urllib
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -18,8 +20,8 @@ class Restaurant(models.Model):
     website = models.URLField(blank=True)
     user = models.ForeignKey(User)
     last_mod = models.DateTimeField(auto_now=True)
-    lat = models.FloatField()
-    long = models.FloatField()
+    lat = models.FloatField(blank=True, default=0)
+    long = models.FloatField(blank=True, default=0)
     
     def text(self):
         return self.address1 + " " + self.address2 + " " + self.city
@@ -73,6 +75,17 @@ class Restaurant(models.Model):
                 lastDay = MultiDay(day)
                 mDays.append(lastDay)
         return mDays
+    
+    def save(self):
+        if self.lat == 0 and self.long == 0:
+            address = "http://maps.google.com/maps/geo?q=%s&key=%s&output=json&oe=utf8&sensor=false"
+            tmp = address%(urllib.quote_plus(self.address1 + " " + self.city +" OR"), "ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q")
+            goog = urllib.urlopen(tmp)
+            json = simplejson.loads(goog.read())
+            ll = json['Placemark'][0]["Point"]["coordinates"]
+            self.lat = ll[0]
+            self.long = ll[1]
+        super(Restaurant, self).save()
     
 
 DAY_CHOICES = (
