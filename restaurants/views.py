@@ -61,12 +61,18 @@ def bad_info(request, item_id):
 @login_required
 def tag(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
-    tags = parse_tag_input(request.GET["tags"])
+    if request.method == "POST":
+        tags = parse_tag_input(request.POST["tags"])
+    else:
+        tags = parse_tag_input(request.GET["tags"])
     for tag in tags:
         Tag.objects.add_tag(restaurant, tag + ",")
+    if request.method == "POST":
+        return HttpResponseRedirect("../")
     to_return = {}
     to_return["tags"] = getTags(restaurant)
     serialized = simplejson.dumps(to_return)
+
     return HttpResponse(serialized, mimetype="application/json")
 
 
@@ -104,6 +110,23 @@ def restaurant(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
     mform = MenuItemForm(prefix="menu")
     cform = comments.get_form()(restaurant)
+    star_names = [
+    "Terrible",
+    "Average",
+    "Good",
+    "Great",
+    "The Best"
+    ]
+    stars = ""
+    rating = restaurant.get_int_rating()
+    stars += '<span id="rateStatus">%s</span>\n<div id="rateMe" title="Rate Me!">\n'%(star_names[rating-1], )
+    for i in xrange(0, 5):
+        if i < rating:
+            c = "on"
+        else:
+            c = "off"
+        stars += '<a id="%s" title="%s" class="%s"> </a>\n'%(i+1, star_names[i], c)
+    stars += "</div>"
     if request.GET.get("query", False):
         # ajax
         categories = set()
@@ -135,4 +158,4 @@ def restaurant(request, slug):
                 cform = comments.get_form()(restaurant)
     del cform.fields['honeypot']
     del cform.fields['url']  
-    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))
+    return render_to_response("restaurants/restaurant_detail.html", {"stars":stars, 'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))

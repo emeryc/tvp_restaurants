@@ -14,4 +14,6 @@ urlpatterns = patterns('',
    (r'^(?P<slug>\S+)/rating/$', rate),
    (r'^(?P<slug>\S+)/$', restaurant, {},'restaurant_details'),
    
+   
+   
 )

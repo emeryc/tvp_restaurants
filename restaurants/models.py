@@ -18,6 +18,8 @@ class Restaurant(models.Model):
     website = models.URLField(blank=True)
     user = models.ForeignKey(User)
     last_mod = models.DateTimeField(auto_now=True)
+    lat = models.FloatField()
+    long = models.FloatField()
     
     def text(self):
         return self.address1 + " " + self.address2 + " " + self.city

@@ -2,13 +2,123 @@
 {% load comments %}
 {% load tagging_tags %}
 
-{% block title %}{{object.name}} Restaurant in Portland, Oregon{% endblock %}
-
-{% block script %}
-	<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q"></script>        
+{% block extra_head %}
+	<style type="text/css">
+		@import "{{ MEDIA_URL }}static_map/css/static_map.css";
+	</style>
 {% endblock %}
 
-{% block bodyargs %}onload='RESTAUARANT.init();' onunload="GUnload()"{% endblock %}
+{% block script %}
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.class{% if not DEBUG %}.min{% endif %}.js"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}static_map/js/static_map{% if not DEBUG %}.min{% endif %}.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+		//Add Tags Functionality.
+		$(document).ready(function() {
+			$("#addTag").submit(function(){
+				$.get("tag/",
+					{"tags":$("#tags").val()},
+					function(data){
+						tagList = $("#taglist");
+						tagList.html(data.tags.join(" "));
+						$("#tags").val("");
+					},
+					"json");
+					return false;
+			});
+		});
+		
+		//Menu Item Form
+		$(document).ready(function() {
+			forms_hide = function(name){
+				var show = $("#show" + name);
+				if(show.length == 0){
+					return;
+				}
+
+				show.show();
+				show.click(function(eventObject){
+					$(this).slideUp(1000);
+					$("#" + name + "form").slideDown(1000);
+				});
+				$("#" + name + "form").hide();
+			};
+			
+			forms_hide("menu");
+			forms_hide("comment");
+		});	
+		
+		//Star Rating
+		$(document).ready(function(){
+			var max_on = 0;
+			$("#rateMe a").each(function(index, domElemnt){
+				idNum = parseInt($(this).attr("id"), 10);
+				if( idNum > max_on && $(this).hasClass("on")){
+					max_on = idNum;
+				}
+			});
+			
+			$("#rateMe a").mouseover(function(eventObject){
+				iNum = parseInt($(this).attr("id"), 10);
+				$("#rateMe a").each(function(index, domElemnt){
+					idNum = parseInt($(this).attr("id"), 10);
+					if( idNum > iNum){
+						$(this).removeClass("on");
+					} else {
+						$(this).addClass("on");
+					}
+				});
+				$("#rateStatus").text($("#" + iNum).attr("title"));
+			});
+			
+			$("#rateMe a").mouseout(function(eventObject){
+				$("#rateMe a").each(function(index, domElemnt){
+					idNum = parseInt($(this).attr("id"), 10);
+					if( idNum > max_on){
+						$(this).removeClass("on");
+					} else {
+						$(this).addClass("on");
+					}
+				});
+				$("#rateStatus").text($("#" + max_on).attr("title"));
+			});
+			
+			$("#rateMe a").click(function(eventObject){
+				idNum = parseInt($(this).attr("id"), 10);
+				
+				$.get("rating/", {"value":idNum},
+					function(data){
+						max_on = data.score;
+						$("#rateStatus").text($("#" + idNum).attr("title"));
+					}, 
+					"json");
+			});
+			
+		});
+		
+		$(document).ready(function(){
+			var map = $("#map");
+			map.html('<a id="showmap" href="#">Show Map</a>');
+			$("#showmap").click(function(){
+				map.html("");
+				new core.StaticMap("#map", {
+					"media_url" : "{{ MEDIA_URL }}",
+				    "api_key" : "ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q", 
+				    "size" : [298, 298], 
+				    "center" : [{{object.long}}, {{object.lat}}], 
+				    "zoom" : 17,
+				    "markers" : [{
+				    	"coordinates" : [{{object.long}}, {{object.lat}}],
+				        "title" : "{{object.name}}",
+				        "description" : "{{object.address1}}"
+				    }]
+				});
+			});
+		});
+	</script>
+{% endblock %}
+
+{% block title %}{{object.name}} Restaurant in Portland, Oregon{% endblock %}
 
 {% block content %}
 	<div id="tagbox" class="rightframe">
@@ -16,7 +126,7 @@
 			{% for tag in tags %}{{tag|safe}} {% endfor %}
 		</div>
     		{% if user.is_authenticated %}
-    	    <form action="javascript:TAGS.add_tags()" method="" accept-charset="utf-8" name="addTag" id="addTag">
+    	    <form action="tag/" method="POST" accept-charset="utf-8" name="addTag" id="addTag">
     	        <input type="text" name="tags" value="" id="tags">
     	        <input type="submit" name="Add_Tag" value="Add Tag" class="button">
     	    </form>
@@ -49,42 +159,12 @@
 	{% endfor %}
     
 	<div id="ratings">
-    	{% if user.is_authenticated %}
-    	<span id="rateStatus">Rate Me!</span>
-    	<div id="rateMe" title="Rate Me!">
-    		<a onclick="STAR.rateIt(this)" id="_1" title="Terrible" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-		    <a onclick="STAR.rateIt(this)" id="_2" title="Average" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-		    <a onclick="STAR.rateIt(this)" id="_3" title="Good" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-		    <a onclick="STAR.rateIt(this)" id="_4" title="Great" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-		    <a onclick="STAR.rateIt(this)" id="_5" title="The Best" onmouseover="STAR.rating(this)" onmouseout="STAR.off(this)"> </a>
-    	</div>
-    	{% else %}
-			<span id="rateStatus">Unrated!</span>
-    	    <div id="rateMe" title="Unrated!">
-    	        <a id="_1" title="Terrible" ></a>
-    	        <a id="_2" title="Average" ></a>
-    	        <a id="_3" title="Good" ></a>
-    	        <a id="_4" title="Great" ></a>
-    	        <a id="_5" title="The Best" ></a>
-    	    </div>
-    	{% endif %}
+			{{stars|safe}}
 	</div>
     
-    <script type="text/javascript">
-        STAR.preSet = document.getElementById("_{{ object.get_int_rating }}");
-        STAR.rating(STAR.preSet);
-    </script>
-
 	<div class="clear"> </div>
 	
-	<p id="showmap">
-		<a href="#map" name="map" onclick='MAPS.initialize("{{object.name}}", "{{object.address1}}", "{{object.city}}", "{{object.state}}")'>Show Map</a>
-	</p>
-    <div id="map">
-        <h1>Map to {{object.name}}</h1>
-		<div class="frame">
-    		<div id="map_canvas"></div>
-    	</div>
+    <div id="map">        
 	</div>
 
     <div id="menu">
@@ -101,10 +181,6 @@
 	                        <p>
 	                            {{menu_item.description}}
 	                        </p>
-	                        {# <p class="bottom"> #}
-	                        {#     <a href="{{menu_item.id}}/not_available/">Not Available?</a> |  #}
-	                        {#     <a href="{{menu_item.id}}/wrong/">Wrong Information?</a> #}
-	                        {# </p> #}
 	                    </div>
 	                </div>
 	            {% endif %}
@@ -123,7 +199,7 @@
         	</form>
 			<div id="cagegory_auto"></div>
     	</div>
-		<p id="showmenu" style="display:none;"><a href="#menu" name="menu" onclick="RESTAUARANT.showmenuform()">Add a Menu Item</a></p>
+		<p id="showmenu" style="display:none;"><a href="#menu" name="menu">Add a Menu Item</a></p>
     {% else %}
         <p><a href="/accounts/login/?next={{ object.get_absolute_url }}">Add a Menu Item</a></p>
     {% endif %}
@@ -154,7 +230,7 @@
             <label> </label> <input type="submit" name="submit" value="Post" class="button">
         </form>
     </div>
-	<p id="showcomment" style="display:none;"><a href="#comment" name="comment" onclick="RESTAUARANT.showcommentform()">Add a Comment</a></p>
+	<p id="showcomment" style="display:none;"><a href="#comment" name="comment">Add a Comment</a></p>
 	{% else %}
         <p><a href='/accounts/login/?next={{ object.get_absolute_url }}'>Add a Comment</a></p>
     {% endif %}
