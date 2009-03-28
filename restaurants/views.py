@@ -19,7 +19,6 @@ def add(request):
     except:
         extra_hours = 2
     HourFormSet = formset_factory(HourForm, extra=extra_hours)
-    print HourFormSet().management_form.as_ul()
     if request.method == "POST":
         form = RestaurantForm(request.POST)
         hfs = HourFormSet(request.POST)       
@@ -110,31 +109,12 @@ def restaurant(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
     mform = MenuItemForm(prefix="menu")
     cform = comments.get_form()(restaurant)
-    star_names = [
-    "Terrible",
-    "Average",
-    "Good",
-    "Great",
-    "The Best",
-    "Unrated"
-    ]
-    stars = ""
-    rating = restaurant.get_int_rating()
-    stars += '<span id="rateStatus">%s</span>\n<div id="rateMe" title="Rate Me!">\n'%(star_names[rating-1], )
-    for i in xrange(0, 5):
-        if i < rating:
-            c = "on"
-        else:
-            c = "off"
-        stars += '<a id="%s" title="%s" class="%s"> </a>\n'%(i+1, star_names[i], c)
-    stars += "</div>"
     if request.GET.get("query", False):
         # ajax
         categories = set()
         for item in restaurant.menuitem_set.all():
             categories.add(item.category)
         categories = list(categories)
-        print categories
         categories.sort()
         serialized = simplejson.dumps({"Results":categories})
         return HttpResponse(serialized, mimetype="application/json")
@@ -159,4 +139,4 @@ def restaurant(request, slug):
                 cform = comments.get_form()(restaurant)
     del cform.fields['honeypot']
     del cform.fields['url']  
-    return render_to_response("restaurants/restaurant_detail.html", {"stars":stars, 'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))
+    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))

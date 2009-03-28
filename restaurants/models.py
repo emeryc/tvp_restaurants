@@ -34,6 +34,27 @@ class Restaurant(models.Model):
     
     def get_int_rating(self):
         return int(self.get_rating() + .5)
+        
+    def get_stars(self):
+        star_names = [
+        "Terrible",
+        "Average",
+        "Good",
+        "Great",
+        "The Best",
+        "Not Rated"
+        ]
+        stars = ""
+        rating = self.get_int_rating()
+        stars += '<span id="rateStatus">%s</span>\n<div id="rateMe" title="Rate Me!">\n'%(star_names[rating-1], )
+        for i in xrange(0, 5):
+            if i < rating:
+                c = "on"
+            else:
+                c = "off"
+            stars += '<a id="%s" title="%s" class="%s"> </a>\n'%(i+1, star_names[i], c)
+        stars += "</div>"
+        return stars
     
     def get_num_raters(self):
         return len(self.rating_set.all())
@@ -68,7 +89,6 @@ class Restaurant(models.Model):
         lastDay = MultiDay(ordered_days.pop(0))
         mDays.append(lastDay)
         for day in ordered_days:
-            print lastDay.hours == day.hours, lastDay.hours, day.hours
             if lastDay.hours == day.hours:
                 lastDay.add_day(day)
             else:
