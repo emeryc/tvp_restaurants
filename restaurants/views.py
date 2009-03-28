@@ -115,7 +115,8 @@ def restaurant(request, slug):
     "Average",
     "Good",
     "Great",
-    "The Best"
+    "The Best",
+    "Unrated"
     ]
     stars = ""
     rating = restaurant.get_int_rating()
