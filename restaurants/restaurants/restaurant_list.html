@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+	<table>
+		<th></th><th></th><th></th>
 	{% for object in object_list %}
-		<p><a href="{{object.get_absolute_url}}">{{object.name}}</a> has {{ object.get_int_rating }} stars and has been rated by {{ object.get_num_raters }} {{ object.get_num_raters|pluralize:"person,people" }}.</p>
+		<tr><td><a href="{{object.get_absolute_url}}">{{object.name}}</a></td><td>{{object.get_stars|safe}}</td><td>rated by {{ object.get_num_raters }} {{ object.get_num_raters|pluralize:"person,people" }}.</td></tr>
 	{% endfor %}
-	
+	</table>
 	<a href="add/">Add a restaurant</a>
 	
 {% endblock %}

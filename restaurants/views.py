@@ -19,7 +19,6 @@ def add(request):
     except:
         extra_hours = 2
     HourFormSet = formset_factory(HourForm, extra=extra_hours)
-    print HourFormSet().management_form.as_ul()
     if request.method == "POST":
         form = RestaurantForm(request.POST)
         hfs = HourFormSet(request.POST)       
@@ -61,12 +60,18 @@ def bad_info(request, item_id):
 @login_required
 def tag(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
-    tags = parse_tag_input(request.GET["tags"])
+    if request.method == "POST":
+        tags = parse_tag_input(request.POST["tags"])
+    else:
+        tags = parse_tag_input(request.GET["tags"])
     for tag in tags:
         Tag.objects.add_tag(restaurant, tag + ",")
+    if request.method == "POST":
+        return HttpResponseRedirect("../")
     to_return = {}
     to_return["tags"] = getTags(restaurant)
     serialized = simplejson.dumps(to_return)
+
     return HttpResponse(serialized, mimetype="application/json")
 
 
@@ -110,7 +115,6 @@ def restaurant(request, slug):
         for item in restaurant.menuitem_set.all():
             categories.add(item.category)
         categories = list(categories)
-        print categories
         categories.sort()
         serialized = simplejson.dumps({"Results":categories})
         return HttpResponse(serialized, mimetype="application/json")

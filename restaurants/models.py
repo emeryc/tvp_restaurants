@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.localflavor.us.models import *
 from django.contrib.auth.models import User
+from django.utils import simplejson
 from datetime import datetime
 import callbacks
 from tagging.fields import TagField
+import urllib
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -18,6 +20,8 @@ class Restaurant(models.Model):
     website = models.URLField(blank=True)
     user = models.ForeignKey(User)
     last_mod = models.DateTimeField(auto_now=True)
+    lat = models.FloatField(blank=True, default=0)
+    long = models.FloatField(blank=True, default=0)
     
     def text(self):
         return self.address1 + " " + self.address2 + " " + self.city
@@ -30,6 +34,27 @@ class Restaurant(models.Model):
     
     def get_int_rating(self):
         return int(self.get_rating() + .5)
+        
+    def get_stars(self):
+        star_names = [
+        "Terrible",
+        "Average",
+        "Good",
+        "Great",
+        "The Best",
+        "Not Rated"
+        ]
+        stars = ""
+        rating = self.get_int_rating()
+        stars += '<span id="rateStatus">%s</span>\n<div id="rateMe" title="Rate Me!">\n'%(star_names[rating-1], )
+        for i in xrange(0, 5):
+            if i < rating:
+                c = "on"
+            else:
+                c = "off"
+            stars += '<a id="%s" title="%s" class="%s"> </a>\n'%(i+1, star_names[i], c)
+        stars += "</div>"
+        return stars
     
     def get_num_raters(self):
         return len(self.rating_set.all())
@@ -64,13 +89,23 @@ class Restaurant(models.Model):
         lastDay = MultiDay(ordered_days.pop(0))
         mDays.append(lastDay)
         for day in ordered_days:
-            print lastDay.hours == day.hours, lastDay.hours, day.hours
             if lastDay.hours == day.hours:
                 lastDay.add_day(day)
             else:
                 lastDay = MultiDay(day)
                 mDays.append(lastDay)
         return mDays
+    
+    def save(self):
+        if self.lat == 0 and self.long == 0:
+            address = "http://maps.google.com/maps/geo?q=%s&key=%s&output=json&oe=utf8&sensor=false"
+            tmp = address%(urllib.quote_plus(self.address1 + " " + self.city +" OR"), "ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q")
+            goog = urllib.urlopen(tmp)
+            json = simplejson.loads(goog.read())
+            ll = json['Placemark'][0]["Point"]["coordinates"]
+            self.lat = ll[0]
+            self.long = ll[1]
+        super(Restaurant, self).save()
     
 
 DAY_CHOICES = (
