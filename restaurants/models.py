@@ -68,6 +68,7 @@ class Restaurant(models.Model):
         lastDay = MultiDay(ordered_days.pop(0))
         mDays.append(lastDay)
         for day in ordered_days:
+            print lastDay.hours == day.hours, lastDay.hours, day.hours
             if lastDay.hours == day.hours:
                 lastDay.add_day(day)
             else:

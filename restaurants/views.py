@@ -19,6 +19,7 @@ def add(request):
     except:
         extra_hours = 2
     HourFormSet = formset_factory(HourForm, extra=extra_hours)
+    print HourFormSet().management_form.as_ul()
     if request.method == "POST":
         form = RestaurantForm(request.POST)
         hfs = HourFormSet(request.POST)       
@@ -133,6 +134,7 @@ def restaurant(request, slug):
         for item in restaurant.menuitem_set.all():
             categories.add(item.category)
         categories = list(categories)
+        print categories
         categories.sort()
         serialized = simplejson.dumps({"Results":categories})
         return HttpResponse(serialized, mimetype="application/json")

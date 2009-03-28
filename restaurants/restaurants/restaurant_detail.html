@@ -39,7 +39,11 @@
 				show.show();
 				show.click(function(eventObject){
 					$(this).slideUp(1000);
-					$("#" + name + "form").slideDown(1000);
+					$("#" + name + "form").slideDown(750, function(){
+						var targetOffset = $(this).offset().top-$(window).height()+$("#" + name + "form").height();
+						$('html,body').animate({scrollTop: targetOffset}, 750);
+					});
+	         		return false;
 				});
 				$("#" + name + "form").hide();
 			};
@@ -123,8 +127,12 @@
 				        "description" : "{{object.address1}}"
 				    }]
 				});
+				var targetOffset = $("#map").offset().top-$(window).height()+320;
+				$('html,body').animate({scrollTop: targetOffset}, 1000);
+         		return false;
 			});
 		});
+		
 	</script>
 {% endblock %}
 
