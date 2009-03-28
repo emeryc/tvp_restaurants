@@ -57,6 +57,10 @@
 					max_on = idNum;
 				}
 			});
+			$("#rateStatus").text($("#" + max_on).attr("title"));
+			if(max_on == 0){
+				$("#rateStatus").text("Not Rated");
+			}
 			
 			$("#rateMe a").mouseover(function(eventObject){
 				iNum = parseInt($(this).attr("id"), 10);
@@ -81,6 +85,10 @@
 					}
 				});
 				$("#rateStatus").text($("#" + max_on).attr("title"));
+				if(max_on == 0){
+					$("#rateStatus").text("Not Rated");
+				}
+
 			});
 			
 			$("#rateMe a").click(function(eventObject){
