@@ -8,7 +8,7 @@ from django.contrib.comments.forms import CommentForm
 from django.template.defaultfilters import slugify
 from tagging.utils import parse_tag_input
 from tagging.models import Tag
-import simplejson
+from django.utils import simplejson
 from django.template import RequestContext
 from django.forms.formsets import formset_factory
 
