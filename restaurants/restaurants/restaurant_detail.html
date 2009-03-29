@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load comments %}
+{% load tagging_tags %}
+
+{% block extra_head %}
+	<style type="text/css">
+		@import "{{ MEDIA_URL }}static_map/css/static_map.css";
+	</style>
+{% endblock %}
+
+{% block script %}
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.class{% if not DEBUG %}.min{% endif %}.js"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}static_map/js/static_map{% if not DEBUG %}.min{% endif %}.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+		//Add Tags Functionality.
+		$(document).ready(function() {
+			$("#addTag").submit(function(){
+				$.get("tag/",
+					{"tags":$("#tags").val()},
+					function(data){
+						tagList = $("#taglist");
+						tagList.html(data.tags.join(" "));
+						$("#tags").val("");
+					},
+					"json");
+					return false;
+			});
+		});
+		
+		//Menu Item Form
+		$(document).ready(function() {
+			forms_hide = function(name){
+				var show = $("#show" + name);
+				if(show.length == 0){
+					return;
+				}
+
+				show.show();
+				show.click(function(eventObject){
+					$(this).slideUp(1000);
+					$("#" + name + "form").slideDown(750, function(){
+						var targetOffset = $(this).offset().top-$(window).height()+$("#" + name + "form").height();
+						$('html,body').animate({scrollTop: targetOffset}, 750);
+					});
+	         		return false;
+				});
+				$("#" + name + "form").hide();
+			};
+			
+			forms_hide("menu");
+			forms_hide("comment");
+		});	
+		
+		{%if user.is_authenticated %}
+		//Star Rating
+		$(document).ready(function(){
+			var max_on = 0;
+			$("#rateMe a").each(function(index, domElemnt){
+				idNum = parseInt($(this).attr("id"), 10);
+				if( idNum > max_on && $(this).hasClass("on")){
+					max_on = idNum;
+				}
+			});
+			$("#rateStatus").text($("#" + max_on).attr("title"));
+			if(max_on == 0){
+				$("#rateStatus").text("Not Rated");
+			}
+			
+			$("#rateMe a").mouseover(function(eventObject){
+				iNum = parseInt($(this).attr("id"), 10);
+				$("#rateMe a").each(function(index, domElemnt){
+					idNum = parseInt($(this).attr("id"), 10);
+					if( idNum > iNum){
+						$(this).removeClass("on");
+					} else {
+						$(this).addClass("on");
+					}
+				});
+				$("#rateStatus").text($("#" + iNum).attr("title"));
+			});
+			
+			$("#rateMe a").mouseout(function(eventObject){
+				$("#rateMe a").each(function(index, domElemnt){
+					idNum = parseInt($(this).attr("id"), 10);
+					if( idNum > max_on){
+						$(this).removeClass("on");
+					} else {
+						$(this).addClass("on");
+					}
+				});
+				$("#rateStatus").text($("#" + max_on).attr("title"));
+				if(max_on == 0){
+					$("#rateStatus").text("Not Rated");
+				}
+
+			});
+			
+			$("#rateMe a").click(function(eventObject){
+				idNum = parseInt($(this).attr("id"), 10);
+				
+				$.get("rating/", {"value":idNum},
+					function(data){
+						max_on = data.score;
+						$("#rateStatus").text($("#" + idNum).attr("title"));
+					}, 
+					"json");
+			});
+			
+		});
+		{% endif %}
+		
+		$(document).ready(function(){
+			var map = $("#map");
+			map.html('<a id="showmap" href="#">Show Map</a>');
+			$("#showmap").click(function(){
+				map.html("");
+				new core.StaticMap("#map", {
+					"media_url" : "{{ MEDIA_URL }}",
+				    "api_key" : "ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q", 
+				    "size" : [298, 298], 
+				    "center" : [{{object.long}}, {{object.lat}}], 
+				    "zoom" : 17,
+				    "markers" : [{
+				    	"coordinates" : [{{object.long}}, {{object.lat}}],
+				        "title" : "{{object.name}}",
+				        "description" : "{{object.address1}}"
+				    }]
+				});
+				var targetOffset = $("#map").offset().top-$(window).height()+320;
+				$('html,body').animate({scrollTop: targetOffset}, 1000);
+         		return false;
+			});
+		});
+		
+	</script>
+{% endblock %}
+
+{% block title %}{{object.name}} Restaurant in Portland, Oregon{% endblock %}
+
+{% block content %}
+	<div id="tagbox" class="rightframe">
+    	<div id="taglist">
+			{% for tag in tags %}{{tag|safe}} {% endfor %}
+		</div>
+    		{% if user.is_authenticated %}
+    	    <form action="tag/" method="POST" accept-charset="utf-8" name="addTag" id="addTag">
+    	        <input type="text" name="tags" value="" id="tags">
+    	        <input type="submit" name="Add_Tag" value="Add Tag" class="button">
+    	    </form>
+    	{% else %}
+    	    <p><a href="/accounts/login/?next={{ object.get_absolute_url }}">Add Tags</a></p>
+    	{% endif %}
+	</div>
+	
+    <h1>{{object.name}}</h1>
+
+	<div id="ratings">
+			{{object.get_stars|safe}}
+	</div>
+	<div id="address">
+    	<address>{{object.address1}}</address>
+    	{% if object.address2 %}
+    	    <address>{{bussiness.address2}}</address>
+    	{% endif %}
+    	<address>{{object.city}}, OR  {{object.zip}}</address>
+    	<address>{{object.phone}}</address>
+    	{% if object.website %}
+    	    <address><a href="{{object.website}}">{{object.website}}</a></address>
+    	{% endif %}
+	</div>
+	
+	{% if object.hours %}
+	<div id="hours">
+		<ul class="plain">
+    	{% for days in object.hours %}
+			<li>{{days.startDay}}{% if days.endDay %} - {{days.endDay}}{% endif %}:
+				{% for time in days.hours %}
+					{{time.open_time|time:"P"}} - {{time.close_time|time:"P"}}{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				{% endfor %}
+			</li>
+		</ul>
+	</div>
+	{% endif %}
+    
+	<div class="clear"> </div>
+	
+    <div id="map">        
+	</div>
+
+    <div id="menu">
+        <h1>{{object.name}} Menu</h1>
+		{% with object.menuitem_set.all as menu %}
+		{% regroup menu by category as menu_list %}
+        {% for menu_category in menu_list %}
+			<h2>{{menu_category.grouper}}</h2>
+			{% for menu_item in menu_category.list %}
+				{% if menu_item.is_available %}
+	                <div class="box">
+	                    <h3 class="smalltitle">{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h3>
+	                    <div class="description">
+	                        <p class="bottom">
+	                            {{menu_item.description}}
+	                        </p>
+	                    </div>
+	                </div>
+	            {% endif %}
+			{% endfor %}
+        {% endfor %}
+		{% endwith %}
+    </div>
+    
+
+	{% if user.is_authenticated %}
+		<div id="menuform">
+        	<h2>Add A Menu Item</h2>
+        	<form id="menu_item" action="./?type=menu" method="POST">
+            	{{menu_form.as_ul}}
+	            <label> </label> <input type="submit" value="Add Item"  class="button"/>
+        	</form>
+			<div id="cagegory_auto"></div>
+    	</div>
+		<p id="showmenu" style="display:none;"><a href="#menu" name="menu">Add a Menu Item</a></p>
+    {% else %}
+        <p><a href="/accounts/login/?next={{ object.get_absolute_url }}">Add a Menu Item</a></p>
+    {% endif %}
+    
+    <div id="comments">
+    	<h1>Comments on {{object.name}}</h1>
+    	{% get_comment_list for object as comment_list %}
+    	{% for comment in comment_list %}
+        	<div class="box">
+            	<h3 class="smalltitle">{{comment.user_name}} said:</h3>
+            	<div class="description">
+						<p>
+                    	{{comment.comment|linebreaks }}
+						</p>
+                	<p class="bottom">
+                    	{{comment.submit_date|date:"l, F j Y g:i A"}}
+                	</p>
+            	</div>
+        	</div>
+     	{% endfor %}
+	</div>
+
+    {% if user.is_authenticated %}
+    <div id="commentform">
+        <h2>Add A Comment</h2>
+        <form id="comment" action="./?type=comment" method="POST">
+            {{comment_form.as_ul}}
+            <label> </label> <input type="submit" name="submit" value="Post" class="button">
+        </form>
+    </div>
+	<p id="showcomment" style="display:none;"><a href="#comment" name="comment">Add a Comment</a></p>
+	{% else %}
+        <p><a href='/accounts/login/?next={{ object.get_absolute_url }}'>Add a Comment</a></p>
+    {% endif %}
+    
+
+{% endblock %}
