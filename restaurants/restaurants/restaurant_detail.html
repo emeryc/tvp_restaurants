@@ -154,7 +154,10 @@
 	</div>
 	
     <h1>{{object.name}}</h1>
-    
+
+	<div id="ratings">
+			{{object.get_stars|safe}}
+	</div>
 	<div id="address">
     	<address>{{object.address1}}</address>
     	{% if object.address2 %}
@@ -166,19 +169,20 @@
     	    <address><a href="{{object.website}}">{{object.website}}</a></address>
     	{% endif %}
 	</div>
-
-    {% for days in object.hours %}
-		<h2>{{days.startDay}}{% if days.endDay %} - {{days.endDay}}{% endif %}</h2>
-		<ul>
-			{% for time in days.hours %}
-				<li>{{time.open_time|time:"P"}} - {{time.close_time|time:"P"}}</li>
-			{% endfor %}
+	
+	{% if object.hours %}
+	<div id="hours">
+		<ul class="plain">
+    	{% for days in object.hours %}
+			<li>{{days.startDay}}{% if days.endDay %} - {{days.endDay}}{% endif %}:
+				{% for time in days.hours %}
+					{{time.open_time|time:"P"}} - {{time.close_time|time:"P"}}{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				{% endfor %}
+			</li>
 		</ul>
-	{% endfor %}
-    
-	<div id="ratings">
-			{{object.get_stars|safe}}
 	</div>
+	{% endif %}
     
 	<div class="clear"> </div>
 	
@@ -194,9 +198,9 @@
 			{% for menu_item in menu_category.list %}
 				{% if menu_item.is_available %}
 	                <div class="box">
-	                    <h3>{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h3>
+	                    <h3 class="smalltitle">{{menu_item.name}} - ${{menu_item.price|floatformat:2}}</h3>
 	                    <div class="description">
-	                        <p>
+	                        <p class="bottom">
 	                            {{menu_item.description}}
 	                        </p>
 	                    </div>
@@ -213,7 +217,7 @@
         	<h2>Add A Menu Item</h2>
         	<form id="menu_item" action="./?type=menu" method="POST">
             	{{menu_form.as_ul}}
-            	<input type="submit" value="Add Item"  class="button"/>
+	            <label> </label> <input type="submit" value="Add Item"  class="button"/>
         	</form>
 			<div id="cagegory_auto"></div>
     	</div>
@@ -227,7 +231,7 @@
     	{% get_comment_list for object as comment_list %}
     	{% for comment in comment_list %}
         	<div class="box">
-            	<h3>{{comment.user_name}} said:</h3>
+            	<h3 class="smalltitle">{{comment.user_name}} said:</h3>
             	<div class="description">
 						<p>
                     	{{comment.comment|linebreaks }}
