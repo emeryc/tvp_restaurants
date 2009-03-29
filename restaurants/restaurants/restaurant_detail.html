@@ -229,11 +229,11 @@
         	<div class="box">
             	<h3>{{comment.user_name}} said:</h3>
             	<div class="description">
-                	<p>
-                    	{{comment.comment}}
-                	</p>
+						<p>
+                    	{{comment.comment|linebreaks }}
+						</p>
                 	<p class="bottom">
-                    	{{comment.submit_date|date:"M d Y g:i A"}}
+                    	{{comment.submit_date|date:"l, F j Y g:i A"}}
                 	</p>
             	</div>
         	</div>

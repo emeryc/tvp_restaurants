@@ -6,6 +6,8 @@ from datetime import datetime
 import callbacks
 from tagging.fields import TagField
 import urllib
+from django.contrib.comments.models import Comment
+from tagging.models import Tag
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -24,7 +26,11 @@ class Restaurant(models.Model):
     long = models.FloatField(blank=True, default=0)
     
     def text(self):
-        return self.address1 + " " + self.address2 + " " + self.city
+        text = self.address1 + " " + self.address2 + " " + self.city + " "
+        text += " ".join([c.comment for c in Comment.objects.filter(object_pk=self.pk)])
+        text += " ".join([tag.name for tag in Tag.objects.get_for_object(self)])
+        text += " ".join([item.text() for item in self.menuitem_set.all()])
+        return  text
     
     def get_rating(self):
         scores = [x.score for x in self.rating_set.all()]
