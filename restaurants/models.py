@@ -27,8 +27,8 @@ class Restaurant(models.Model):
     
     def text(self):
         text = self.address1 + " " + self.address2 + " " + self.city + " "
-        text += " ".join([c.comment for c in Comment.objects.filter(object_pk=self.pk)])
-        text += " ".join([tag.name for tag in Tag.objects.get_for_object(self)])
+        text += " ".join([c.comment for c in Comment.objects.filter(object_pk=self.pk)]) + " "
+        text += " ".join([tag.name for tag in Tag.objects.get_for_object(self)]) + " "
         text += " ".join([item.text() for item in self.menuitem_set.all()])
         return  text
     
