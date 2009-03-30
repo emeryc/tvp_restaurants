@@ -38,6 +38,13 @@ class Restaurant(models.Model):
             return 0
         return sum(scores)/(len(scores)*1.0)
     
+    def get_menu_item_count(self):
+        return len(self.menuitem_set.all())
+    
+    
+    def get_comment_count(self):
+        return len(Comment.objects.filter(object_pk=self.pk))
+    
     def get_int_rating(self):
         return int(self.get_rating() + .5)
         
