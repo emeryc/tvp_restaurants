@@ -11,7 +11,8 @@
 {% block script %}
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.class{% if not DEBUG %}.min{% endif %}.js"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}static_map/js/static_map{% if not DEBUG %}.min{% endif %}.js"></script>
-
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/utilities.js"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/combobox.js"></script>
 	<script type="text/javascript" charset="utf-8">
 		//Add Tags Functionality.
 		$(document).ready(function() {
@@ -30,7 +31,7 @@
 		
 		//Menu Item Form
 		$(document).ready(function() {
-			forms_hide = function(name){
+			forms_hide = function(name, callback){
 				var show = $("#show" + name);
 				if(show.length == 0){
 					return;
@@ -40,6 +41,9 @@
 				show.click(function(eventObject){
 					$(this).slideUp(1000);
 					$("#" + name + "form").slideDown(750, function(){
+						if(callback != null){
+							callback();
+						}
 						var targetOffset = $(this).offset().top-$(window).height()+$("#" + name + "form").height();
 						$('html,body').animate({scrollTop: targetOffset}, 750);
 					});
@@ -48,7 +52,13 @@
 				$("#" + name + "form").hide();
 			};
 			
-			forms_hide("menu");
+			forms_hide("menu", 
+			function(){
+				new ComboBox("id_menu-category", 
+					function(data, cb){
+						$.get("./", {"query":data}, function(data){cb.setItems(data["Results"]);},"json");
+					});
+			});
 			forms_hide("comment");
 		});	
 		
@@ -191,7 +201,6 @@
 
     <div id="menu">
         <h1>{{object.name}} Menu</h1>
-		{% with object.menuitem_set.all as menu %}
 		{% regroup menu by category as menu_list %}
         {% for menu_category in menu_list %}
 			<h2>{{menu_category.grouper}}</h2>
@@ -208,7 +217,6 @@
 	            {% endif %}
 			{% endfor %}
         {% endfor %}
-		{% endwith %}
     </div>
     
 

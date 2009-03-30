@@ -110,10 +110,12 @@ def restaurant(request, slug):
     mform = MenuItemForm(prefix="menu")
     cform = comments.get_form()(restaurant)
     if request.GET.get("query", False):
+        input = request.GET.get("query").lower()
         # ajax
         categories = set()
         for item in restaurant.menuitem_set.all():
-            categories.add(item.category)
+            if item.category.lower().startswith(input):
+                categories.add(item.category)
         categories = list(categories)
         categories.sort()
         serialized = simplejson.dumps({"Results":categories})
@@ -128,6 +130,7 @@ def restaurant(request, slug):
                 model.is_available = True
                 model.save()
                 mform = MenuItemForm(prefix="menu")
+                return HttpResponseRedirect("./")
         else :
             cform = comments.get_form()(restaurant, data=request.POST.copy())
             if cform.is_valid():
@@ -137,6 +140,7 @@ def restaurant(request, slug):
                     comment.user = request.user
                 comment.save()
                 cform = comments.get_form()(restaurant)
+                return HttpResponseRedirect("./")
     del cform.fields['honeypot']
     del cform.fields['url']  
-    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'tags':getTags(restaurant)}, context_instance=RequestContext(request))
+    return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'menu':restaurant.menuitem_set.all().order_by("category") ,'tags':getTags(restaurant)}, context_instance=RequestContext(request))
