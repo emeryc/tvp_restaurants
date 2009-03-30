@@ -5,7 +5,7 @@ from django.views.generic.list_detail import object_list, object_detail
 from tagging.views import tagged_object_list
 
 urlpatterns = patterns('',
-   (r'^$', object_list, {"queryset":Restaurant.objects.all()}),
+   (r'^$', object_list, {"queryset":Restaurant.objects.all().order_by("name")}),
    (r'^add/$', add),
    (r'^tags/(?P<tag>.+)/$', tagged_object_list, {'queryset_or_model':Restaurant}),
    (r'^\S+/(?P<item_id>\d+)/not_available/$', not_available),
