@@ -149,6 +149,9 @@ class Hours(models.Model):
     open_time = models.TimeField()
     close_time = models.TimeField()
     
+    def __lt__(self, other):
+        return self.open_time < other.open_time
+    
     def __eq__(self, other):
         return self.open_time == other.open_time and self.close_time == other.close_time
     
