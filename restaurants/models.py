@@ -115,9 +115,12 @@ class Restaurant(models.Model):
             tmp = address%(urllib.quote_plus(self.address1 + " " + self.city +" OR"), "ABQIAAAAS-5gBFgwAFQUtVAJt6dALBQLe2pAG1dPDIKxYeUNHIP8NTaN5xQ-9s8j_PpGRMwn52s44b93IVD70Q")
             goog = urllib.urlopen(tmp)
             json = simplejson.loads(goog.read())
-            ll = json['Placemark'][0]["Point"]["coordinates"]
-            self.lat = ll[0]
-            self.long = ll[1]
+            try:
+                ll = json['Placemark'][0]["Point"]["coordinates"]
+                self.lat = ll[0]
+                self.long = ll[1]
+            except:
+                pass
         super(Restaurant, self).save()
     
 

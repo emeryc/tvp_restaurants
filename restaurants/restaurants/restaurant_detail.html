@@ -120,6 +120,7 @@
 		});
 		{% endif %}
 		
+		{% ifnotequal object.long 0 %}
 		$(document).ready(function(){
 			var map = $("#map");
 			map.html('<a id="showmap" href="#">Show Map</a>');
@@ -142,6 +143,7 @@
          		return false;
 			});
 		});
+		{% endifnotequal %}
 		
 	</script>
 {% endblock %}
