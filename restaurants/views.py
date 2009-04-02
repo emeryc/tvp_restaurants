@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from forms import RestaurantForm, MenuItemForm, HourForm
-from models import Restaurant, MenuItem, Rating
+from models import Restaurant, MenuItem, Rating, ReferingSite
 from django.contrib.auth.decorators import login_required
 from django.contrib import comments
 from django.contrib.comments.forms import CommentForm
@@ -11,6 +11,8 @@ from tagging.models import Tag
 from django.utils import simplejson
 from django.template import RequestContext
 from django.forms.formsets import formset_factory
+import logging
+import traceback
 
 @login_required
 def add(request):
@@ -135,6 +137,12 @@ def restaurant(request, slug):
                 return HttpResponseRedirect("./")
     del cform.fields['honeypot']
     del cform.fields['url']  
+    referer = request.environ.get("HTTP_REFERER")
+    if referer.startswith("http://stumptownvegans.com/") or referer.startswith("http://localhost:8000/") and ReferingSite.objects.get(url=referer) == None:
+        try:
+            ReferingSite(restaurant=restaurant, url=referer).save()
+        except:
+            logging.critical(traceback.format_exc())
     return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'menu':restaurant.menuitem_set.all().order_by("category") ,'tags':getTags(restaurant)}, context_instance=RequestContext(request))
 
 def process_ajax(request, restaurant):

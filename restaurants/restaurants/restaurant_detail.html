@@ -205,6 +205,12 @@
     <div id="map">        
 	</div>
 
+	<p>
+	{% for url in object.referingsite_set.all %}
+		<a href="{{url.url}}">Stumptown Vegans Review</a>
+	{% endfor %}
+	</p>
+
     <div id="menu">
         <h1>{{object.name}} Menu</h1>
 		{% regroup menu by category as menu_list %}

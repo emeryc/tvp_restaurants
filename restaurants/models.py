@@ -191,3 +191,9 @@ class Rating(models.Model):
     user = models.ForeignKey(User)
     restaurant = models.ForeignKey(Restaurant)
     score = models.IntegerField()
+
+
+class ReferingSite(models.Model):
+    restaurant = models.ForeignKey(Restaurant)
+    url = models.URLField(unique=True)
+    
