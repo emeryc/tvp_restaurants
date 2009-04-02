@@ -109,17 +109,9 @@ def restaurant(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
     mform = MenuItemForm(prefix="menu")
     cform = comments.get_form()(restaurant)
-    if request.GET.get("query", False):
-        input = request.GET.get("query").lower()
-        # ajax
-        categories = set()
-        for item in restaurant.menuitem_set.all():
-            if item.category.lower().startswith(input):
-                categories.add(item.category)
-        categories = list(categories)
-        categories.sort()
-        serialized = simplejson.dumps({"Results":categories})
-        return HttpResponse(serialized, mimetype="application/json")
+    ajax = process_ajax(request, restaurant)
+    if ajax:
+        return ajax
     if request.method == "POST":
         if request.GET["type"] == "menu":
             mform = MenuItemForm(request.POST, prefix="menu")
@@ -144,3 +136,21 @@ def restaurant(request, slug):
     del cform.fields['honeypot']
     del cform.fields['url']  
     return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'menu':restaurant.menuitem_set.all().order_by("category") ,'tags':getTags(restaurant)}, context_instance=RequestContext(request))
+
+def process_ajax(request, restaurant):
+    if request.GET.get("query", False):
+        input = request.GET.get("query").lower()
+        categories = set()
+        for item in restaurant.menuitem_set.all():
+            if item.category.lower().startswith(input):
+                categories.add(item.category)
+        categories = list(categories)
+        categories.sort()
+        serialized = simplejson.dumps({"Results":categories})
+        return HttpResponse(serialized, mimetype="application/json")
+    if request.GET.get("tag", False):
+        input = request.GET.get("tag").lower()
+        tags = Tag.objects.all().filter(name__startswith=input).order_by("name")
+        serialized = simplejson.dumps([tag.name for tag in tags])
+        return HttpResponse(serialized, mimetype="application/json")
+    return False
