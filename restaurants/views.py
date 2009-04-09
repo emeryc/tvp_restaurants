@@ -63,11 +63,12 @@ def bad_info(request, item_id):
 def tag(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
     if request.method == "POST":
-        tags = parse_tag_input(request.POST["tags"])
+        tags = request.POST["tags"]
     else:
-        tags = parse_tag_input(request.GET["tags"])
-    for tag in tags:
-        Tag.objects.add_tag(restaurant, tag + ",")
+        tags = request.GET["tags"]
+    # for tag in tags:
+    print tags
+    Tag.objects.add_tag(restaurant, tags + ",")
     if request.method == "POST":
         return HttpResponseRedirect("../")
     to_return = {}
