@@ -138,11 +138,12 @@ def restaurant(request, slug):
     del cform.fields['honeypot']
     del cform.fields['url']  
     referer = request.environ.get("HTTP_REFERER")
-    if referer.startswith("http://stumptownvegans.com/") or referer.startswith("http://localhost:8000/") and ReferingSite.objects.get(url=referer) == None:
-        try:
-            ReferingSite(restaurant=restaurant, url=referer).save()
-        except:
-            logging.critical(traceback.format_exc())
+    if referer != None:
+        if  referer.startswith("http://stumptownvegans.com/") or referer.startswith("http://localhost:8000/") and ReferingSite.objects.get(url=referer) == None:
+            try:
+                ReferingSite(restaurant=restaurant, url=referer).save()
+            except:
+                logging.critical(traceback.format_exc())
     return render_to_response("restaurants/restaurant_detail.html", {'menu_form': mform, 'comment_form': cform, 'object': restaurant, 'menu':restaurant.menuitem_set.all().order_by("category") ,'tags':getTags(restaurant)}, context_instance=RequestContext(request))
 
 def process_ajax(request, restaurant):
