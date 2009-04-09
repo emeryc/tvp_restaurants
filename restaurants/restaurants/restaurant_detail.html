@@ -30,7 +30,7 @@
 			new ComboBox("tags", 
 				function(data, cb){
 					$.get("./", {"tag":data}, function(data){cb.setItems(data);},"json");
-				}, {"allowMultipleValues":true});
+				}, {"allowMultipleValues":false});
 		});
 		
 		//Menu Item Form

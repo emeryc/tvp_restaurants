@@ -102,9 +102,14 @@ class Restaurant(models.Model):
         lastDay = MultiDay(ordered_days.pop(0))
         mDays.append(lastDay)
         for day in ordered_days:
-            if lastDay.hours == day.hours:
+            print DAY_CHOICES[day.day_count-1][1]
+            print lastDay.endDay
+            print lastDay.endDay == DAY_CHOICES[day.day_count-1][1]
+            if lastDay.hours == day.hours and lastDay.endDay == DAY_CHOICES[day.day_count-1][1]:
                 lastDay.add_day(day)
             else:
+                if lastDay.startDay == lastDay.endDay:
+                    lastDay.endDay = None
                 lastDay = MultiDay(day)
                 mDays.append(lastDay)
         return mDays
@@ -138,6 +143,7 @@ class MultiDay(object):
     def __init__(self, day):
         self.startDay = day.day
         self.hours = day.hours
+        self.endDay = day.day
         
     def add_day(self, day):
         self.endDay = day.day
@@ -145,7 +151,11 @@ class MultiDay(object):
 
 class Day(object):
     def __init__(self, day):
-        self.day = dict(DAY_CHOICES)[day]
+        for i in xrange(len(DAY_CHOICES)):
+            if DAY_CHOICES[i][0] == day:
+                self.day = DAY_CHOICES[i][1]
+                self.day_count = i
+        # self.day = dict(DAY_CHOICES)[day]
         self.hours = []
     
     def add_hour(self, hour):
