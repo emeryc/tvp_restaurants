@@ -112,6 +112,8 @@ class Restaurant(models.Model):
                     lastDay.endDay = None
                 lastDay = MultiDay(day)
                 mDays.append(lastDay)
+        if lastDay.startDay == lastDay.endDay:
+            lastDay.endDay = None
         return mDays
     
     def save(self):
