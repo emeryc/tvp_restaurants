@@ -140,7 +140,7 @@ def restaurant(request, slug):
     del cform.fields['url']  
     referer = request.environ.get("HTTP_REFERER")
     if referer != None:
-        if  referer.startswith("http://stumptownvegans.com/") or referer.startswith("http://localhost:8000/") and ReferingSite.objects.get(url=referer) == None:
+        if  referer.startswith("http://stumptownvegans.com/") or referer.startswith("http://localhost:8000/") and not ReferingSite.objects.all().filter(url=referer) and not ReferingSite.objects.all().filter(restaurant=restaurant):
             try:
                 ReferingSite(restaurant=restaurant, url=referer).save()
             except:

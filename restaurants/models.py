@@ -181,7 +181,7 @@ class Hours(models.Model):
         return self.day + " " + str(self.open_time) + " - " + str(self.close_time)
 
 class MenuItem(models.Model):
-    name = models.CharField(max_length=60)
+    name = models.CharField(max_length=60, verbose_name="Item Name")
     category = models.CharField(max_length=60)
     description = models.TextField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
