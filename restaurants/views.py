@@ -9,6 +9,7 @@ from django.template.defaultfilters import slugify
 from tagging.utils import parse_tag_input
 from tagging.models import Tag
 from django.utils import simplejson
+from django.forms.util import ErrorList
 from django.template import RequestContext
 from django.forms.formsets import formset_factory
 import logging
@@ -19,12 +20,21 @@ def add(request):
     try:
         extra_hours = int(request.GET["eh"])
     except:
-        extra_hours = 2
+        extra_hours = 7
     HourFormSet = formset_factory(HourForm, extra=extra_hours)
     if request.method == "POST":
         form = RestaurantForm(request.POST)
         hfs = HourFormSet(request.POST)       
-        if form.is_valid() and hfs.is_valid():
+        slug = slugify(form.data.get("name"))
+        original = None
+        try:
+            original = Restaurant.objects.all().get(slug=slug)
+        except:
+            pass
+        if original:
+            #Add an error to the name field.
+            form.errors["name"] = ErrorList(["Name has already been taken"])
+        if form.is_valid() and hfs.is_valid() and original != None:
             model = form.save(commit=False)
             model.slug = slugify(model.name)
             model.user = request.user

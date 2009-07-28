@@ -11,7 +11,7 @@ from tagging.models import Tag
 
 # Create your models here.
 class Restaurant(models.Model):
-    name = models.CharField(max_length=60)
+    name = models.CharField(max_length=60, unique=True)
     slug = models.SlugField(unique=True)
     address1 = models.CharField("Address Line 1", max_length=50)
     address2 = models.CharField("Address Line 2", max_length=50, blank=True)
