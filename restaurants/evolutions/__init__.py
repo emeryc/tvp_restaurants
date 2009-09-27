@@ -1,3 +1,0 @@
-SEQUENCE = (
-    'add_user',
-)
